@@ -23,5 +23,11 @@ def getFilePath(name,era,type='divers'):
 def getErasDict():
     return dict([(era,(start,end)) for era,start,end in zip(eras,eraStart,eraEnd)])
 
+def getEraFromDate(date):
+    for i,(start,end) in enumerate(zip(eraStart,eraEnd)):
+        if start <= date < end:
+            return eras[i]
+    return None
+
 if __name__ == "__main__":
     createDirectories()
