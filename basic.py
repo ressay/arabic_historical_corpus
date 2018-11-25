@@ -24,19 +24,33 @@ def getEraFromDate(date):
 def getEraFromAuthor(name,lang='ar'):
     import wptools as wp
     import re
+    patterns = [
+        ".*Décès en.*?(\d+)",
+        "^.*وفيات (\d+)$",
+        ".*?(\d+) deaths",
+        ".*Naissance en.*?(\d+)",
+        ".*?(\d+) births",
+        "^.*مواليد (\d+)$"
+    ]
     try:
         so = wp.page(name, lang=lang).get_more()
-        print(so.data['categories'])
-        for st in so.data['categories']:
-            if re.match(".*(Décès en|Naissance en)\s+\d+",st):
-                date = int(re.sub(".*(Décès en|Naissance en)\s+(\d+)","\g<2>",st))
-                return getEraFromDate(date)
-            if re.match(".*?\d+ (deaths|births)", st):
-                date = int(re.sub(".*?(\d+) (deaths|births)", "\g<1>", st))
-                return getEraFromDate(date)
-            if re.match("^.*(وفيات|مواليد) \d+$", st):
-                date = int(re.sub("^.*(وفيات|مواليد) (\d+)$", "\g<2>", st))
-                return getEraFromDate(date)
+        # print(so.data['categories'])
+        for pattern in patterns:
+            for st in so.data['categories']:
+                if re.match(pattern,st):
+                    date = int(re.sub(pattern,"\g<1>",st))
+                    # print(st)
+                    print(date)
+                    return getEraFromDate(date)
+            # if re.match(".*(Décès en|Naissance en)\s+\d+", st):
+            #     date = int(re.sub(".*(Décès en|Naissance en)\s+(\d+)", "\g<2>", st))
+            #     return getEraFromDate(date)
+            # if re.match(".*?\d+ (deaths|births)", st):
+            #     date = int(re.sub(".*?(\d+) (deaths|births)", "\g<1>", st))
+            #     return getEraFromDate(date)
+            # if re.match("^.*(وفيات|مواليد) \d+$", st):
+            #     date = int(re.sub("^.*(وفيات|مواليد) (\d+)$", "\g<2>", st))
+            #     return getEraFromDate(date)
 
         return "unknown"
     except LookupError:
@@ -48,14 +62,20 @@ def getEraFromAuthor(name,lang='ar'):
             return "unknown"
         try:
             so = wp.page(name, lang=lang).get_more()
-            print(so.data['categories'])
+            # print(so.data['categories'])
             for st in so.data['categories']:
-                if re.match("^.*(وفيات|مواليد) \d+$", st):
-                    date = int(re.sub("^.*(وفيات|مواليد) (\d+)$", "\g<2>", st))
-                    return getEraFromDate(date)
-                if re.match(".*?\d+ (deaths|births)", st):
-                    date = int(re.sub(".*?(\d+) (deaths|births)", "\g<1>", st))
-                    return getEraFromDate(date)
+                for pattern in patterns:
+                    if re.match(pattern, st):
+                        date = int(re.sub(pattern, "\g<1>", st))
+                        # print(st)
+                        print(date)
+                        return getEraFromDate(date)
+                # if re.match("^.*(وفيات|مواليد) \d+$", st):
+                #     date = int(re.sub("^.*(وفيات|مواليد) (\d+)$", "\g<2>", st))
+                #     return getEraFromDate(date)
+                # if re.match(".*?\d+ (deaths|births)", st):
+                #     date = int(re.sub(".*?(\d+) (deaths|births)", "\g<1>", st))
+                #     return getEraFromDate(date)
             return "unknown"
         except LookupError:
             return "unknown"
@@ -78,9 +98,9 @@ def wikipediaFromGoogle(query):
     return str(result[0]),re.sub("_"," ",result[1])
 
 if __name__ == "__main__":
-    print(getEraFromAuthor("ابو الفرج عبد الرحمن بن علي بن الجوزي","ar"))
-    res = wikipediaFromGoogle("ابو الفرج عبد الرحمن بن علي بن الجوزي")
+    print(getEraFromAuthor("ghandi","en"))
+    res = wikipediaFromGoogle("ghandi")
     if res:
         print(res[0])
         print(res[1])
-    print(getEraFromAuthor(res[1],res[0]))
+        print(getEraFromAuthor(res[1],res[0]))

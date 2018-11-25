@@ -36,12 +36,12 @@ def scrape_page(parent,page,writer):
 
 # scrape_page(parent,"aaian-alasr-002.html",None)
 
-def scrapeIslamic(parent,type="history"):
-    rep = urllib.request.urlopen(parent)
+def scrapeIslamic(parent,page,type="history"):
+    rep = urllib.request.urlopen(parent+page)
     soup = BeautifulSoup(rep, "html.parser")
     nextLink = ""
     for node in soup.find_all("a"):
-        if re.match(".*التالية.*",node.get_text()):
+        if "التالية" in node.get_text():
             nextLink = node.get("href")
     body = soup.find("tbody")
 
@@ -71,23 +71,25 @@ def scrapeIslamic(parent,type="history"):
             continue
 
         filename = bs.getFilePath(book, era, type,author)
-        # print(filename)
+
+        print(filename)
         writer = open(filename, encoding="utf-8", mode="w")
         # f = open("try", encoding="utf-8", mode="w")
         scrape_page(parent, link, writer)
 
     if nextLink != "":
-        scrapeIslamic(parent+nextLink)
+        scrapeIslamic(parent,nextLink,type)
 
 
 if __name__ == "__main__":
     parent = "http://www.islamicbook.ws/tarekh/"
-    scrapeIslamic(parent)
+    scrapeIslamic(parent,"")
     parents = ["http://www.islamicbook.ws/qbook/","http://www.islamicbook.ws/ageda/"
-               ,"http://www.islamicbook.ws/hadeth/","http://www.islamicbook.ws/asol/",
-               "http://www.islamicbook.ws/amma/"]
+               ,"http://www.islamicbook.ws/hadeth/","http://www.islamicbook.ws/asol/",]
     for parent in parents:
-        scrapeIslamic(parent,"religion")
+        scrapeIslamic(parent,"","religion")
 
     parent = "http://www.islamicbook.ws/adab/"
-    scrapeIslamic(parent,"literature")
+    scrapeIslamic(parent,"","literature")
+    parent = "http://www.islamicbook.ws/amma/"
+    scrapeIslamic(parent,"", "divers")
