@@ -70,7 +70,7 @@ def scrapeIslamic(parent,type="history"):
         if era == 'unknown':
             continue
 
-        filename = bs.getFilePath(book, era, type)
+        filename = bs.getFilePath(book, era, type,author)
         # print(filename)
         writer = open(filename, encoding="utf-8", mode="w")
         # f = open("try", encoding="utf-8", mode="w")
@@ -81,8 +81,8 @@ def scrapeIslamic(parent,type="history"):
 
 
 if __name__ == "__main__":
-    # parent = "http://www.islamicbook.ws/tarekh/"
-    # scrapeIslamic(parent)
+    parent = "http://www.islamicbook.ws/tarekh/"
+    scrapeIslamic(parent)
     parents = ["http://www.islamicbook.ws/qbook/","http://www.islamicbook.ws/ageda/"
                ,"http://www.islamicbook.ws/hadeth/","http://www.islamicbook.ws/asol/",
                "http://www.islamicbook.ws/amma/"]
