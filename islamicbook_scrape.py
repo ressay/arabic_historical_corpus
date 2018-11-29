@@ -76,6 +76,7 @@ def scrapeIslamic(parent,page,type="history"):
         writer = open(filename, encoding="utf-8", mode="w")
         # f = open("try", encoding="utf-8", mode="w")
         scrape_page(parent, link, writer)
+        writer.close()
 
     if nextLink != "":
         scrapeIslamic(parent,nextLink,type)

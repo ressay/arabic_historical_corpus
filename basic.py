@@ -1,7 +1,7 @@
 
 from initializer import eras, eraEnd, eraStart, path
 
-def getFilePath(name,era,type='divers',author=""):
+def getFilePath(name,era,type='divers',author="unknown"):
     import os
     if era not in eras:
         return None #come on ..
@@ -10,7 +10,11 @@ def getFilePath(name,era,type='divers',author=""):
         os.mkdir(path + '/' + era + '/' + type)
     if author != "":
         name = "__"+author+"__"+name
-    return path + '/' + era + '/' + type + '/' + name
+    p = path + '/' + era + '/' + type + '/' + name
+    p.replace('\t', ' ')
+    p.replace('\n', ' ')
+    p.replace('\r', ' ')
+    return p
 
 def getErasDict():
     return dict([(era,(start,end)) for era,start,end in zip(eras,eraStart,eraEnd)])
@@ -97,10 +101,46 @@ def wikipediaFromGoogle(query):
         return None
     return str(result[0]),re.sub("_"," ",result[1])
 
+
+def saveListOfBooks():
+    import json
+    books = loadListOfBooks()
+    with open('books.json', 'w') as fp:
+        json.dump(books, fp)
+
+def bookExists(name,era,author='unknown',books=None):
+    if not books:
+        books = loadListOfBooks()
+    books = books[era]
+    for book in books:
+        if name == book['name']:
+            return True
+    return False
+
+def loadListOfBooks():
+    import re
+    import os
+    books = {}
+    for rootdir in eras:
+        for folder, subs, files in os.walk(rootdir):
+            if len(files):
+                # print(files)
+                splitted = [re.findall("__(.*)__(.*)", file)[0] for file in files]
+                # print(splitted)
+                books[folder] = [{"name": spl[1], "author": spl[0]} for spl in splitted]
+    # print(books)
+    return books
+
+
+
+
+
 if __name__ == "__main__":
-    print(getEraFromAuthor("ghandi","en"))
-    res = wikipediaFromGoogle("ghandi")
-    if res:
-        print(res[0])
-        print(res[1])
-        print(getEraFromAuthor(res[1],res[0]))
+    loadListOfBooks()
+
+    # print(getEraFromAuthor("ghandi","en"))
+    # res = wikipediaFromGoogle("ghandi")
+    # if res:
+    #     print(res[0])
+    #     print(res[1])
+    #     print(getEraFromAuthor(res[1],res[0]))
