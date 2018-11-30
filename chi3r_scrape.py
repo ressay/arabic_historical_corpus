@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 import basic
 import re
 
-
 """ procedure :
 website -> jahili -> {
                           cha3ir1 -> diwan -> {
@@ -32,7 +31,6 @@ for eras in soup.find_all("div" , {"class" : "col-md-4"}):
             for node1 in soup.find_all("a" , {"class":"s-button"}):  #   get every cha3ir diwan
                 rep = urllib.request.urlopen("https://www.aldiwan.net/" + node1.get("href"))
                 soup2 = BeautifulSoup(rep, "html.parser")
-
 
                 for node3 in soup2.find_all("a" , {"class":"pull-right"}):  #   get every chi3r from diwan link
                     #   create a file for everykassida using getFilePath function
