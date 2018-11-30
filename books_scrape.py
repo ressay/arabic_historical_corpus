@@ -19,7 +19,6 @@ file = open("try.txt" , encoding="utf-8" , mode="w")
 
 x = 1
 for main_table in soup.find_all("p"):
-    print("Pragraph_______________________________________________________________________________")
     file.write(main_table.text)
 
 
