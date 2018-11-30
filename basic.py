@@ -11,9 +11,9 @@ def getFilePath(name,era,type='divers',author="unknown"):
     if author != "":
         name = "__"+author+"__"+name
     p = path + '/' + era + '/' + type + '/' + name
-    p.replace('\t', ' ')
-    p.replace('\n', ' ')
-    p.replace('\r', ' ')
+    p = p.replace('\t', ' ')
+    p = p.replace('\n', ' ')
+    p = p.replace('\r', ' ')
     return p
 
 def getErasDict():
@@ -25,64 +25,101 @@ def getEraFromDate(date):
             return eras[i]
     return None
 
-def getEraFromAuthor(name,lang='ar'):
+def getBirthDeathFromAuthor(name,lang='ar'):
     import wptools as wp
     import re
-    patterns = [
+    patternsDeath = [
         ".*Décès en.*?(\d+)",
         "^.*وفيات (\d+)$",
         ".*?(\d+) deaths",
+    ]
+    patternsBirth = [
         ".*Naissance en.*?(\d+)",
         ".*?(\d+) births",
         "^.*مواليد (\d+)$"
     ]
     try:
         so = wp.page(name, lang=lang).get_more()
-        # print(so.data['categories'])
-        for pattern in patterns:
-            for st in so.data['categories']:
-                if re.match(pattern,st):
-                    date = int(re.sub(pattern,"\g<1>",st))
+        infos = []
+        print(so.data['categories'])
+        for st in so.data['categories']:
+            done = False
+            for pattern in patternsBirth:
+                if re.match(pattern, st):
+                    date = int(re.sub(pattern, "\g<1>", st))
                     # print(st)
                     print(date)
-                    return getEraFromDate(date)
-            # if re.match(".*(Décès en|Naissance en)\s+\d+", st):
-            #     date = int(re.sub(".*(Décès en|Naissance en)\s+(\d+)", "\g<2>", st))
-            #     return getEraFromDate(date)
-            # if re.match(".*?\d+ (deaths|births)", st):
-            #     date = int(re.sub(".*?(\d+) (deaths|births)", "\g<1>", st))
-            #     return getEraFromDate(date)
-            # if re.match("^.*(وفيات|مواليد) \d+$", st):
-            #     date = int(re.sub("^.*(وفيات|مواليد) (\d+)$", "\g<2>", st))
-            #     return getEraFromDate(date)
+                    infos.append(date)
+                    done = True
+                    break
+            if done: break
+        if len(infos) == 0:
+            infos.append("unknown")
+        for st in so.data['categories']:
+            done = False
+            for pattern in patternsDeath:
+                if re.match(pattern, st):
+                    date = int(re.sub(pattern, "\g<1>", st))
+                    # print(st)
+                    print(date)
+                    infos.append(date)
+                    done=True
+                    break
+            if done: break
+        if len(infos) == 1:
+            infos.append('unknown')
 
-        return "unknown"
-    except LookupError:
+        return infos
+    except Exception:
         res = wikipediaFromGoogle(name)
         if res:
             lang = res[0]
             name = res[1]
         else:
-            return "unknown"
+            return ["unknown","unknown"]
         try:
             so = wp.page(name, lang=lang).get_more()
-            # print(so.data['categories'])
+            infos = []
+            print(so.data['categories'])
             for st in so.data['categories']:
-                for pattern in patterns:
+                done = False
+                for pattern in patternsBirth:
                     if re.match(pattern, st):
                         date = int(re.sub(pattern, "\g<1>", st))
                         # print(st)
                         print(date)
-                        return getEraFromDate(date)
-                # if re.match("^.*(وفيات|مواليد) \d+$", st):
-                #     date = int(re.sub("^.*(وفيات|مواليد) (\d+)$", "\g<2>", st))
-                #     return getEraFromDate(date)
-                # if re.match(".*?\d+ (deaths|births)", st):
-                #     date = int(re.sub(".*?(\d+) (deaths|births)", "\g<1>", st))
-                #     return getEraFromDate(date)
-            return "unknown"
-        except LookupError:
-            return "unknown"
+                        infos.append(date)
+                        done = True
+                        break
+                if done: break
+            if len(infos) == 0:
+                infos.append("unknown")
+            for st in so.data['categories']:
+                done = False
+                for pattern in patternsDeath:
+                    if re.match(pattern, st):
+                        date = int(re.sub(pattern, "\g<1>", st))
+                        # print(st)
+                        print(date)
+                        infos.append(date)
+                        done = True
+                        break
+                if done: break
+            if len(infos) == 1:
+                infos.append('unknown')
+            return infos
+
+        except Exception:
+            return ["unknown","unknown"]
+
+def getEraFromAuthor(name,lang='ar'):
+    death = getBirthDeathFromAuthor(name,lang)[1]
+    if death != 'unknown':
+        return getEraFromDate(death)
+    birth = getBirthDeathFromAuthor(name, lang)[0]
+    if birth != 'unknown':
+        return getEraFromDate(birth)
+    return 'unknown'
 
 def wikipediaFromGoogle(query):
     import re
@@ -93,7 +130,11 @@ def wikipediaFromGoogle(query):
     # r = requests.get(link)
     rep = requests.get(link)
     soup = BeautifulSoup(rep.text,"html.parser")
-    first = soup.find("cite").get_text()
+    cite = soup.find("cite")
+    if cite:
+        first = cite.get_text()
+    else:
+        return None
     result = None
     if re.match("https://.+\.wikipedia.org/wiki/.+",first):
         result = re.sub("https://(.+)\.wikipedia.org/wiki/(.+)","\g<1>*\g<2>",first).split("*")
@@ -104,30 +145,34 @@ def wikipediaFromGoogle(query):
 
 def saveListOfBooks():
     import json
-    books = loadListOfBooks()
+    books = loadListOfBooksByEras()
     with open('books.json', 'w') as fp:
         json.dump(books, fp)
 
-def bookExists(name,era,author='unknown',books=None):
+def bookExists(name,era,books=None):
     if not books:
-        books = loadListOfBooks()
+        books = loadListOfBooksByEras()
     books = books[era]
     for book in books:
         if name == book['name']:
             return True
     return False
 
-def loadListOfBooks():
+def loadListOfBooksByEras():
     import re
     import os
     books = {}
     for rootdir in eras:
-        for folder, subs, files in os.walk(rootdir):
+        books[rootdir] = []
+        for folder, subs, files in os.walk(path+'/'+rootdir):
             if len(files):
                 # print(files)
                 splitted = [re.findall("__(.*)__(.*)", file)[0] for file in files]
                 # print(splitted)
-                books[folder] = [{"name": spl[1], "author": spl[0]} for spl in splitted]
+                category = folder.split('/')[-1]
+                books[rootdir] += [{"name": spl[1], "author": spl[0],
+                                   "type": category, "path":folder+'/'+file}
+                                  for spl,file in zip(splitted,files)]
     # print(books)
     return books
 
@@ -136,9 +181,8 @@ def loadListOfBooks():
 
 
 if __name__ == "__main__":
-    loadListOfBooks()
-
-    # print(getEraFromAuthor("ghandi","en"))
+    # saveListOfBooks()
+    print(getEraFromAuthor("إبراهيم بن محمد الحقي","ar"))
     # res = wikipediaFromGoogle("ghandi")
     # if res:
     #     print(res[0])

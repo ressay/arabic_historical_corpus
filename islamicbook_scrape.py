@@ -1,7 +1,6 @@
 import urllib.request
 from bs4 import BeautifulSoup
 import basic as bs
-import re
 
 def scrape_page(parent,page,writer):
     rep = urllib.request.urlopen(parent+page)
@@ -36,7 +35,7 @@ def scrape_page(parent,page,writer):
 
 # scrape_page(parent,"aaian-alasr-002.html",None)
 
-def scrapeIslamic(parent,page,type="history"):
+def scrapeIslamic(parent,page,type="history",limit=-1):
     rep = urllib.request.urlopen(parent+page)
     soup = BeautifulSoup(rep, "html.parser")
     nextLink = ""
@@ -44,7 +43,7 @@ def scrapeIslamic(parent,page,type="history"):
         if "التالية" in node.get_text():
             nextLink = node.get("href")
     body = soup.find("tbody")
-
+    books = bs.loadListOfBooksByEras()
     for tr in body.find_all("tr"):
         i = 0
         link = ""
@@ -67,13 +66,22 @@ def scrapeIslamic(parent,page,type="history"):
                 book = td.text
         if con: continue
         era = bs.getEraFromAuthor(author)
+
         if era == 'unknown':
+            continue
+        if bs.bookExists(book,era,books):
+            limit-=1
+            if not limit:
+                return
             continue
 
         filename = bs.getFilePath(book, era, type,author)
 
         print(filename)
         writer = open(filename, encoding="utf-8", mode="w")
+        limit -= 1
+        if not limit:
+            return
         # f = open("try", encoding="utf-8", mode="w")
         scrape_page(parent, link, writer)
         writer.close()
@@ -82,15 +90,20 @@ def scrapeIslamic(parent,page,type="history"):
         scrapeIslamic(parent,nextLink,type)
 
 
-if __name__ == "__main__":
+def scrape_all(limit = -1):
     parent = "http://www.islamicbook.ws/tarekh/"
-    scrapeIslamic(parent,"")
-    parents = ["http://www.islamicbook.ws/qbook/","http://www.islamicbook.ws/ageda/"
-               ,"http://www.islamicbook.ws/hadeth/","http://www.islamicbook.ws/asol/",]
+    scrapeIslamic(parent, "",limit=limit)
+    parents = ["http://www.islamicbook.ws/qbook/", "http://www.islamicbook.ws/ageda/"
+        , "http://www.islamicbook.ws/hadeth/", "http://www.islamicbook.ws/asol/", ]
     for parent in parents:
-        scrapeIslamic(parent,"","religion")
+        scrapeIslamic(parent, "", "religion",limit=limit)
+        if limit > 0: # light mode selected
+            break
 
     parent = "http://www.islamicbook.ws/adab/"
-    scrapeIslamic(parent,"","literature")
+    scrapeIslamic(parent, "", "literature",limit=limit)
     parent = "http://www.islamicbook.ws/amma/"
-    scrapeIslamic(parent,"", "divers")
+    scrapeIslamic(parent, "", "divers",limit=limit)
+
+if __name__ == "__main__":
+    scrape_all()

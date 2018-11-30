@@ -2,10 +2,10 @@ from selenium import webdriver
 from time import sleep
 from bs4 import BeautifulSoup
 
-driver = webdriver.PhantomJS()
+driver = webdriver.PhantomJS('phantomjs/bin/phantomjs')
 driver.get("http://www.alwaraq.net/Core/AlwaraqSrv/bookpage?book=9&session=ABBBVFAGFGFHAAWER&fkey=2&page=1&option=1")
 
-sleep(10)
+sleep(1)
 
 
 html2 = driver.execute_script("return document.getElementsByTagName('html')[0].innerHTML")
