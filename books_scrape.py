@@ -1,18 +1,19 @@
 from selenium import webdriver
 from time import sleep
+from time import time
 from bs4 import BeautifulSoup
-import urllib.request
 import basic
 import re
 
 
 def getPageText(html_page ,  last_page_read):
-    soup = BeautifulSoup(html_page, "html.parser")
+    soup = BeautifulSoup(html_page, "lxml")
     page = ""
     for main_text in soup.find_all("td" , {"height" : "269"}):
         page += main_text.text
     if page == last_page_read:
         return ""
+
     else:
         return page
 
@@ -38,8 +39,23 @@ def getBookText(first_page_link):
         else:
             break
     return book
-"""
-file = open("f.txt" , encoding="utf-8" , mode="w")
-file.write(getBookText("http://www.alwaraq.net/Core/AlwaraqSrv/bookpage?book=0&session=ABBBVFAGFGFHAAWER&fkey=2&page=1&option=1"))
-file.close()
-"""
+#2244
+start = time()
+for x in range(1):
+    link = "http://www.alwaraq.net/Core/AlwaraqSrv/bookpage?book="+str(x)+"&session=ABBBVFAGFGFHAAWER&fkey=2&page=1&option=1"
+    driver = webdriver.PhantomJS()
+    driver.get(link)
+    sleep(1)
+    rep = driver.execute_script("return document.getElementsByTagName('html')[0].innerHTML")
+    soup  = BeautifulSoup(rep , "lxml")
+    for title in soup.find_all("title"):
+        title = re.sub("  - resource for arabic books" , "" ,title.text)
+    td = soup.find_all("td" , {"width" : "40%"})
+    name = re.sub("(\s+تأليف :\s+)|(\s+)$" ,"" , td[1].text) + "\n"
+    era = basic.getEraFromAuthor(name)
+#open("titles.txt" , encoding="utf-8" , mode="w").write(names)
+    filename = basic.getFilePath(title , era=era , author=name)
+    open(filename , encoding="utf-8" , mode="w").write(getBookText(link))
+    print(str(time() - start))
+    print("done")
+
