@@ -1,7 +1,7 @@
 import sys
 import getopt
 
-eras = ['Jahiliy','SadrIslam','Umayyad','Abbasid','Dual','Modern']
+eras = ['Jahiliy','SadrIslam','Umayyad','Abbasid','Dual','Modern', 'Quran', 'Hadith']
 eraStart = [0,610,661,750,1258,1798]
 eraEnd = [610,661,750,1258,1798,2019]
 path = "./rawData" # where to put scraped files
