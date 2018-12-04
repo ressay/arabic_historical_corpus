@@ -7,16 +7,17 @@ import pprint
 tree = ET.parse('quran-simple.xml')
 root = tree.getroot()
 
-def _createXml(name,ayat,type,savePath,era):
+def _createXml(name,ayat,type,savePath,id):
     root = ET.Element("root",encoding='utf-8')
     metaData = ET.SubElement(root,'metadata')
     ET.SubElement(metaData, 'book_name').text = name
-    ET.SubElement(metaData, 'era').text = era
+    ET.SubElement(metaData, 'era').text = None
     auth = ET.SubElement(metaData, 'author')
     ET.SubElement(auth, 'name').text = None
     ET.SubElement(auth, 'birth').text = None
     ET.SubElement(auth, 'death').text = None
     ET.SubElement(metaData, 'type').text = type
+    ET.SubElement(metaData, 'id').text = id
     doc = ET.SubElement(root, "doc")
     sentences = ayat
     for sentence in sentences:
@@ -43,7 +44,9 @@ def get_surat():
     return surat
 
 
-surat = get_surat()
-for sura in surat:
-    print(surat[sura])
-    _createXml(sura,surat[sura],"book","quraan","SadrIslam")
+def build(idStart):
+    surat = get_surat()
+    for sura in surat:
+        print(surat[sura])
+        _createXml(sura, surat[sura], "book", "quraan",idStart)
+        idStart+=1
