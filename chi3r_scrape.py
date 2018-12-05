@@ -61,12 +61,12 @@ def scrape_all(limit = -1):
                         if not cEra:
                             print(node.text)
                             continue
-                        if bs.bookExists(node3.text,cEra,books):
+                        if bs.bookExists(node3.text,books):
                             setLimit -= 1
                             if not setLimit:
                                 break
                             continue
-                        filename = bs.getFilePath(node3.text, cEra, "poem", node1.text)
+                        filename = bs.getFilePath(node3.text, cEra, "شعر", node1.text)
 
                         # if node.text == "العصر الجاهلي":
                         #     filename = bs.getFilePath(node3.text, "Jahiliy", "poem", node1.text) + ".txt"
