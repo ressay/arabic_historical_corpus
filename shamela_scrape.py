@@ -66,7 +66,7 @@ for category in soup.find_all("a"):
                         author = author.text
                         era = bs.getEraFromAuthor(author)
                         #if not bs.bookExists(book.text, era):
-                        if not bs.bookExists(book.text, era)
+                        if not bs.bookExists(book.text, era):
                             filename = bs.getFilePath(book.text, era, category.text, author)
                             b = readBook("http://shamela.ws" + book_link)
                             file = open(filename, encoding="utf-8", mode="w")
