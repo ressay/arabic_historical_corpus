@@ -28,6 +28,7 @@ if __name__ == "__main__":
     import islamicbook_scrape
     import news_scrape
     import chi3r_scrape
+    import shamela_scrape
     import cleaner
     import os
 
@@ -44,9 +45,10 @@ if __name__ == "__main__":
 
 
     if light_scrape:
-        islamicbook_scrape.scrape_all(3)
+        # islamicbook_scrape.scrape_all(3)
         # news_scrape.scrape_all(1)
-        chi3r_scrape.scrape_all(20)
+        # chi3r_scrape.scrape_all(20)
+        shamela_scrape.scrape_all()
     else:
         islamicbook_scrape.scrape_all()
         news_scrape.scrape_all()

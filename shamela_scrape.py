@@ -13,7 +13,7 @@ def getPageText(html_page_link ,  last_page_read):
     for main_text in soup.find_all("div" , {"class" : "book-container"}):
         text = str(main_text)
         #text = re.sub("(<br\s*/?>)" , "\n" , text)
-        text = re.sub("(<hr class=\"footnote\".*)|(<span.*>)|(</span>)|(<div.*>)|(</div>)", "", text)
+        text = re.sub("(<hr class=\"footnote\".*?)|(<span.*?>)|(</span>)|(<div.*?>)|(</div>)", "", text)
         text = re.sub("(\n)|(\r)|(\t+)", " ", text)
         page += text
     """
@@ -46,31 +46,42 @@ def readBook(book_link):
                     break
             book = re.sub("(<br/>+)|(<br>)", "\n", book)
             return book
-rep = urllib.request.urlopen("http://shamela.ws/index.php/categories")
-soup = BeautifulSoup(rep, "lxml")
 
-for category in soup.find_all("a"):
-    category_link = category.get("href")
-    if re.match("/index.php/category/\d+", category_link):
-        if not re.match(".*مرقم آليا.*", category.text):
-            try:
-                rep = urllib.request.urlopen("http://shamela.ws" + category_link)
-                soup2 = BeautifulSoup(rep, "lxml")
-            except:
-                pass
-            for book in soup2.find_all("a"):
-                book_link = book.get("href")
-                if re.match("/index.php/book/\d+", book_link):
-                    try:
-                        author = book.parent.find("a" , {"class" : "ignore"})
-                        author = author.text
-                        era = bs.getEraFromAuthor(author)
-                        #if not bs.bookExists(book.text, era):
-                        if not bs.bookExists(book.text, era):
-                            filename = bs.getFilePath(book.text, era, category.text, author)
-                            b = readBook("http://shamela.ws" + book_link)
-                            file = open(filename, encoding="utf-8", mode="w")
-                            file.write(b)
-                            file.close()
-                    except:
-                        pass
+def scrape_all():
+    books = bs.loadListOfBooksByEras()
+    print(books)
+    rep = urllib.request.urlopen("http://shamela.ws/index.php/categories")
+    soup = BeautifulSoup(rep, "lxml")
+
+    for category in soup.find_all("a"):
+        category_link = category.get("href")
+        if re.match("/index.php/category/\d+", category_link):
+            if not re.match(".*مرقم آليا.*", category.text):
+                try:
+                    rep = urllib.request.urlopen("http://shamela.ws" + category_link)
+                    soup2 = BeautifulSoup(rep, "lxml")
+                except:
+                    continue
+                for book in soup2.find_all("a"):
+                    book_link = book.get("href")
+                    if re.match("/index.php/book/\d+", book_link):
+                        # try:
+                            author = book.parent.find("a", {"class": "ignore"})
+                            author = author.text
+                            era = bs.getEraFromAuthor(author)
+                            if era == 'unknown':
+                                continue
+                            # if not bs.bookExists(book.text, era):
+                            if not bs.bookExists(book.text, books):
+                                filename = bs.getFilePath(book.text, era, category.text, author)
+                                b = readBook("http://shamela.ws" + book_link)
+                                file = open(filename, encoding="utf-8", mode="w")
+                                file.write(b)
+                                file.close()
+                                print('done writing')
+                        # except Exception:
+                        #     print('in exception2')
+                        #     continue
+
+if __name__ == '__main__':
+    scrape_all()
