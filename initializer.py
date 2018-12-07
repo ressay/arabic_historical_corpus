@@ -47,7 +47,7 @@ if __name__ == "__main__":
     if light_scrape:
         # islamicbook_scrape.scrape_all(3)
         # news_scrape.scrape_all(1)
-        chi3r_scrape.scrape_all(5)
+        chi3r_scrape.scrape_all(1)
     else:
         islamicbook_scrape.scrape_all()
         news_scrape.scrape_all()
