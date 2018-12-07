@@ -46,6 +46,6 @@ def build(idStart,xmlDir):
     surat = get_surat()
     for sura in surat:
         print(surat[sura])
-        _createXml(sura, surat[sura], "quran", xmlDir+"/quran",idStart)
+        _createXml(sura, surat[sura], "القرآن", xmlDir+"/القرآن",idStart)
         idStart += 1
     return idStart
