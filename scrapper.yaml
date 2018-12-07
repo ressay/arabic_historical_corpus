@@ -15,9 +15,9 @@ spec:
           mountPath: /root
         resources:
           requests:
-            memory: "1024M"
+            memory: "512M"
           limits:
-            memory: "1024M"
+            memory: "512M"
 
       restartPolicy: OnFailure
 
