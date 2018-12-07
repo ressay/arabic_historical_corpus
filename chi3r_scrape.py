@@ -68,7 +68,10 @@ def scrape_all(limit = -1):
                                 break
                             continue
                         filename = bs.getFilePath(node3.text, cEra, "شعر", node1.text)
-
+                        if filename is None:
+                            print('filename is None')
+                            print('era is: ' + str(cEra))
+                            continue
                         # if node.text == "العصر الجاهلي":
                         #     filename = bs.getFilePath(node3.text, "Jahiliy", "poem", node1.text) + ".txt"
                         #     # error in line 40 in one of the files i get file not found (file not getting created)
