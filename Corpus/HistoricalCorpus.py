@@ -7,7 +7,7 @@ import nltk
 from nltk.corpus import XMLCorpusReader
 from nltk.internals import ElementWrapper
 
-from Corpus.farassaWrapper.farassaInterface import Farasa
+from .farassaWrapper.farassaInterface import Farasa
 
 
 class Sliceable(object):

@@ -6,7 +6,7 @@ import nltk
 import basic as bs
 import initializer
 from Corpus.HistoricalCorpus import HistoricalCorpus
-
+import quran_corpus_builder
 
 def clean():
     _cleanNotFound()
@@ -85,9 +85,9 @@ def _sentenceTokenizer(content):
 def convertScrapedToXml(xmlDir='xmlCorpus'):
     books = bs.loadListOfBooksByEras()
     import json
-
+    id = quran_corpus_builder.build(1,xmlDir)
     tempAuthors = {}
-    id = 1
+
     for era in bs.eras:
         dir = xmlDir + '/' + era
         if not os.path.isdir(dir):
