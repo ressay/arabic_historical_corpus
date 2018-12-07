@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: tal-scrapper
+spec:
+  template:
+    metadata:
+      name: tal-scrapper
+    spec:
+      containers:
+      - name: tal-scrapper
+        image: gcr.io/arabic-historical-dictionary/tal-scrapper
+        volumeMounts:
+        - name: tal-disk
+          mountPath: /root
+        resources:
+          requests:
+            memory: "1024M"
+          limits:
+            memory: "1024M"
+
+      restartPolicy: OnFailure
+
+      volumes:
+          - name: tal-disk
+            gcePersistentDisk:
+              # This disk must already exist.
+              pdName: tal-disk
+              fsType: ext4
