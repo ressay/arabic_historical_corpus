@@ -33,7 +33,6 @@ if __name__ == "__main__":
     import os
 
     createDirectories()
-    light_scrape = True
 
     options, remainder = getopt.getopt(sys.argv[1:], 'l',[])
     for opt,arg in options:
