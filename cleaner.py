@@ -24,7 +24,7 @@ def _cleanNotFound():
                     if len(line) > 0:
                         empty = False
                     if 'sorry' in line.lower():
-                        print(line)
+                        # print(line)
                         notFound = True
             if notFound or empty:
                 os.remove(book['path'])
@@ -58,7 +58,7 @@ def _createXml(path,name,author,type,savePath,era,id):
     content = open(path,'r').read()
     content = _clean_text(content)
     sentences = _sentenceTokenizer(content)
-    print(str(len(sentences)))
+    # print(str(len(sentences)))
     ET.SubElement(metaData, 'size').text = str(len(sentences))
     doc = ET.SubElement(root, "doc")
     for sentence in sentences:
@@ -94,6 +94,7 @@ def convertScrapedToXml(xmlDir='xmlCorpus'):
             os.mkdir(dir)
         limit = -1
         for book in books[era]:
+            print('cleaning book:')
             print(book)
             if book['author'] in tempAuthors:
                 infos = tempAuthors[book['author']]

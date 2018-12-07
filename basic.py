@@ -47,16 +47,16 @@ def getBirthDeathFromAuthor(name,lang='ar'):
         "^.*مواليد (\d+)$"
     ]
     try:
-        so = wp.page(name, lang=lang).get_more()
+        so = wp.page(name, lang=lang,verbose=False).get_more()
         infos = []
-        print(so.data['categories'])
+        # print(so.data['categories'])
         for st in so.data['categories']:
             done = False
             for pattern in patternsBirth:
                 if re.match(pattern, st):
                     date = int(re.sub(pattern, "\g<1>", st))
                     # print(st)
-                    print(date)
+                    # print(date)
                     infos.append(date)
                     done = True
                     break
@@ -69,7 +69,7 @@ def getBirthDeathFromAuthor(name,lang='ar'):
                 if re.match(pattern, st):
                     date = int(re.sub(pattern, "\g<1>", st))
                     # print(st)
-                    print(date)
+                    # print(date)
                     infos.append(date)
                     done=True
                     break
@@ -86,16 +86,16 @@ def getBirthDeathFromAuthor(name,lang='ar'):
         else:
             return ["unknown","unknown"]
         try:
-            so = wp.page(name, lang=lang).get_more()
+            so = wp.page(name, lang=lang,verbose=False).get_more()
             infos = []
-            print(so.data['categories'])
+            # print(so.data['categories'])
             for st in so.data['categories']:
                 done = False
                 for pattern in patternsBirth:
                     if re.match(pattern, st):
                         date = int(re.sub(pattern, "\g<1>", st))
                         # print(st)
-                        print(date)
+                        # print(date)
                         infos.append(date)
                         done = True
                         break
@@ -108,7 +108,7 @@ def getBirthDeathFromAuthor(name,lang='ar'):
                     if re.match(pattern, st):
                         date = int(re.sub(pattern, "\g<1>", st))
                         # print(st)
-                        print(date)
+                        # print(date)
                         infos.append(date)
                         done = True
                         break

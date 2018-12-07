@@ -49,7 +49,7 @@ def readBook(book_link):
 
 def scrape_all():
     books = bs.loadListOfBooksByEras()
-    print(books)
+    # print(books)
     rep = urllib.request.urlopen("http://shamela.ws/index.php/categories")
     soup = BeautifulSoup(rep, "lxml")
 
@@ -76,6 +76,8 @@ def scrape_all():
                                 filename = bs.getFilePath(book.text, era, category.text, author)
                                 b = readBook("http://shamela.ws" + book_link)
                                 file = open(filename, encoding="utf-8", mode="w")
+                                print('file created')
+                                print(filename)
                                 file.write(b)
                                 file.close()
                                 print('done writing')

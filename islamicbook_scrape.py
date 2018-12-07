@@ -23,7 +23,7 @@ def scrape_page(parent,page,writer):
     for br in div_containers.find_all("br"):
         br.replace_with("\n")
     paragraph = div_containers.get_text()
-    print(paragraph)
+    # print(paragraph)
     # for node in div_container.find_all("p"):
     #     paragraph += node.text
 
@@ -76,7 +76,7 @@ def scrapeIslamic(parent,page,type="تاريخ",limit=-1):
             continue
 
         filename = bs.getFilePath(book, era, type,author)
-
+        print('file created:')
         print(filename)
         writer = open(filename, encoding="utf-8", mode="w")
         limit -= 1
