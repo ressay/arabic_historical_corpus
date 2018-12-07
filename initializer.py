@@ -33,29 +33,32 @@ if __name__ == "__main__":
     import os
 
     createDirectories()
+    light_scrape = False
 
     options, remainder = getopt.getopt(sys.argv[1:], 'l',[])
     for opt,arg in options:
         if opt == '-l':
-            print('light scraping mode selected')
             light_scrape = True
-        else:
-            print('heavy scrape mode selected')
 
 
+    print('starting to scrape')
     if light_scrape:
-        # islamicbook_scrape.scrape_all(3)
+        print('light scraping mode selected')
+        islamicbook_scrape.scrape_all(1)
         # news_scrape.scrape_all(1)
         chi3r_scrape.scrape_all(1)
     else:
+        print('heavy scrape mode selected')
         islamicbook_scrape.scrape_all()
         news_scrape.scrape_all()
         chi3r_scrape.scrape_all()
         shamela_scrape.scrape_all()
 
+    print('cleaning...')
     # cleaning
     cleaner.clean()
 
+    print('converting to xml...')
     # convert to xml
     if not os.path.isdir(xmlDir):
         os.makedirs(xmlDir)  # line B

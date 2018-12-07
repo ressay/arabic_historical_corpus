@@ -6,7 +6,7 @@ import nltk
 import basic as bs
 import initializer
 from Corpus.HistoricalCorpus import HistoricalCorpus
-
+import quran_corpus_builder
 
 def clean():
     _cleanNotFound()
@@ -24,7 +24,7 @@ def _cleanNotFound():
                     if len(line) > 0:
                         empty = False
                     if 'sorry' in line.lower():
-                        print(line)
+                        # print(line)
                         notFound = True
             if notFound or empty:
                 os.remove(book['path'])
@@ -58,7 +58,7 @@ def _createXml(path,name,author,type,savePath,era,id):
     content = open(path,'r').read()
     content = _clean_text(content)
     sentences = _sentenceTokenizer(content)
-    print(str(len(sentences)))
+    # print(str(len(sentences)))
     ET.SubElement(metaData, 'size').text = str(len(sentences))
     doc = ET.SubElement(root, "doc")
     for sentence in sentences:
@@ -85,15 +85,16 @@ def _sentenceTokenizer(content):
 def convertScrapedToXml(xmlDir='xmlCorpus'):
     books = bs.loadListOfBooksByEras()
     import json
-
+    id = quran_corpus_builder.build(1,xmlDir)
     tempAuthors = {}
-    id = 1
+
     for era in bs.eras:
         dir = xmlDir + '/' + era
         if not os.path.isdir(dir):
             os.mkdir(dir)
         limit = -1
         for book in books[era]:
+            print('cleaning book:')
             print(book)
             if book['author'] in tempAuthors:
                 infos = tempAuthors[book['author']]

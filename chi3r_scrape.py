@@ -54,14 +54,15 @@ def scrape_all(limit = -1):
                         #   create a file for everykassida using getFilePath function
 
 
-                        print("try")
+                        print("getting poem")
                         print(i)
                         i = i + 1
                         cEra = mapEras[node.text]
                         if not cEra:
-                            print(node.text)
+                            print("no era found for it")
                             continue
                         if bs.bookExists(node3.text,books):
+                            print('book already exists')
                             setLimit -= 1
                             if not setLimit:
                                 break
@@ -77,7 +78,6 @@ def scrape_all(limit = -1):
                         #     filename = bs.getFilePath(node3.text, "Umayyad", "poem", node1.text) + ".txt"
                         # elif node.text == "العصر الإسلامي":
                         #     filename = bs.getFilePath(node3.text, "SadrIslam", "poem", node1.text) + ".txt"
-                        print('got name')
                         try:
                             file = open(filename, encoding="utf-8", mode="w")
                             print("file created")

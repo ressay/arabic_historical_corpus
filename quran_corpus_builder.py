@@ -1,8 +1,5 @@
-import nltk
-import re
 import os
 import xml.etree.ElementTree as ET
-import pprint
 
 tree = ET.parse('quran-simple.xml')
 root = tree.getroot()
@@ -11,15 +8,16 @@ def _createXml(name,ayat,type,savePath,id):
     root = ET.Element("root",encoding='utf-8')
     metaData = ET.SubElement(root,'metadata')
     ET.SubElement(metaData, 'book_name').text = name
-    ET.SubElement(metaData, 'era').text = None
+    ET.SubElement(metaData, 'era').text = "all"
     auth = ET.SubElement(metaData, 'author')
-    ET.SubElement(auth, 'name').text = None
-    ET.SubElement(auth, 'birth').text = None
-    ET.SubElement(auth, 'death').text = None
+    ET.SubElement(auth, 'name').text = "/"
+    ET.SubElement(auth, 'birth').text = "/"
+    ET.SubElement(auth, 'death').text = "/"
     ET.SubElement(metaData, 'type').text = type
-    ET.SubElement(metaData, 'id').text = id
-    doc = ET.SubElement(root, "doc")
+    ET.SubElement(metaData, 'id').text = str(id)
     sentences = ayat
+    ET.SubElement(metaData, 'size').text = str(len(sentences))
+    doc = ET.SubElement(root, "doc")
     for sentence in sentences:
         ET.SubElement(doc, "sentence").text = sentence
     tree = ET.ElementTree(root)
@@ -44,9 +42,10 @@ def get_surat():
     return surat
 
 
-def build(idStart):
+def build(idStart,xmlDir):
     surat = get_surat()
     for sura in surat:
         print(surat[sura])
-        _createXml(sura, surat[sura], "book", "quraan",idStart)
-        idStart+=1
+        _createXml(sura, surat[sura], "quran", xmlDir+"/quran",idStart)
+        idStart += 1
+    return idStart
