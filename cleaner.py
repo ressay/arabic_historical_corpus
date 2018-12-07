@@ -1,9 +1,12 @@
+import os
 import xml.etree.cElementTree as ET
+
+import nltk
+
 import basic as bs
 import initializer
-from HistoricalCorpus import HistoricalCorpus
-import os
-import nltk
+from Corpus.HistoricalCorpus import HistoricalCorpus
+
 
 def clean():
     _cleanNotFound()
@@ -40,6 +43,7 @@ def _moveAstrayBooks(booksToMove):
     pass
 
 def _createXml(path,name,author,type,savePath,era,id):
+    import re
     root = ET.Element("root",encoding='utf-8')
     metaData = ET.SubElement(root,'metadata')
     ET.SubElement(metaData, 'book_name').text = name
@@ -58,7 +62,8 @@ def _createXml(path,name,author,type,savePath,era,id):
     ET.SubElement(metaData, 'size').text = str(len(sentences))
     doc = ET.SubElement(root, "doc")
     for sentence in sentences:
-        ET.SubElement(doc, "sentence").text = sentence
+        if len(re.sub("\s","",sentence)) > 0:
+            ET.SubElement(doc, "sentence").text = sentence
     tree = ET.ElementTree(root)
     savePath = savePath+'/'+type
     if not os.path.isdir(savePath):
@@ -109,28 +114,23 @@ def convertScrapedToXml(xmlDir='xmlCorpus'):
     with open(xmlDir+'/books_description.json', 'w') as fp:
         json.dump(bk, fp)
 def _readXml():
-    import json
     corpus = HistoricalCorpus(initializer.xmlDir)
     print(len(corpus.fileids()))
-    # print(corpus.sents(corpus.fileids()[1]))
-    # corpus.metadata(corpus.fileids()[0])
-    print(corpus.fileids(bs.eras[2]))
     print(corpus.fileids(category="poem"))
-    file = corpus.fileids(category="history",era='Abbasid')[0]
-    print(file)
-    words = corpus.words(file,30,60)
-    print(words)
-    print(len(words))
-    sentences = corpus._gen_sents_class_based(file)
-    print(len(sentences))
-    sentences = corpus.sents(file)
-    print(len(sentences))
-    print(sentences[0])
-    # arb_stopwords = set(nltk.corpus.stopwords.words("arabic"))
-    # apparitions = corpus.words_apparitions(stop_words=arb_stopwords)
-    # with open('apps.json', 'w') as fp:
-    #     json.dump(apparitions, fp)
-    # print(len(apparitions))
+    tagged_words = corpus.lemma_words(end=10)
+    print(tagged_words)
+    tagged_words = corpus.lemma_words(end=200)
+    print(tagged_words)
+    sents = corpus.lemma_sents(end=20)
+    for sent in sents:
+        print(sent)
+    stop = set(nltk.corpus.stopwords.words("arabic"))
+    print(stop)
+    apps = corpus.words_apparitions(stop_words=stop)
+    print(len(apps))
+    # with open('apps2.json', 'w') as fp:
+    #     json.dump(apps, fp)
+
 
 
 if __name__ == '__main__':

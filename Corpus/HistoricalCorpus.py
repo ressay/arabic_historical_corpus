@@ -1,11 +1,14 @@
 try: from xml.etree import cElementTree as ElementTree
 except ImportError: from xml.etree import ElementTree
 
-from nltk.corpus import XMLCorpusReader
-import nltk
-from nltk.internals import ElementWrapper
-import basic as bs
 from itertools import islice
+
+import nltk
+from nltk.corpus import XMLCorpusReader
+from nltk.internals import ElementWrapper
+
+from Corpus.farassaWrapper.farassaInterface import Farasa
+
 
 class Sliceable(object):
     """Sliceable(iterable) is an object that wraps 'iterable' and
@@ -82,6 +85,7 @@ class HistoricalCorpus(XMLCorpusReader):
         self._booksByType = {}
         self._fileidsByIds = {}
         self._idsByfileIds = {}
+        self.far = Farasa()
         for fileid in self.fileids():
             metadata = self.metadata(fileid)
             t = metadata['type']
@@ -144,7 +148,11 @@ class HistoricalCorpus(XMLCorpusReader):
                         break
                     if cpt < start:
                         continue
-                    yield nltk.TreebankWordTokenizer().tokenize(entry.text)
+                    try:
+                        yield nltk.TreebankWordTokenizer().tokenize(entry.text)
+                    except TypeError:
+                        print(entry.text)
+                        print(fileid)
 
     def _gen_sents_class_based(self, fileid):
         metadata = self.metadata(fileid)
@@ -192,12 +200,21 @@ class HistoricalCorpus(XMLCorpusReader):
         words = [word for word in self._genWords(fileids,start,end,era=era,category=category)]
         return words
 
-    def sents_normalized(self, fileid,start=None,end=None,era=None,category=None):
+    def tagged_sents(self,fileid=None,start=None,end=None,era=None,category=None):
         sentences = self.sents(fileid,start,end,era,category)
-        return [[bs.normalizeText(word) for word in sentence] for sentence in sentences]
+        return [self.far.tag(" ".join(s)) for s in sentences]
 
-    def words_normalized(self, fileid=None,start=None,end=None,era=None,category=None):
-        return [bs.normalizeText(word) for word in self.words(fileid,start,end,era,category)]
+    def tagged_words(self, fileid=None,start=None,end=None,era=None,category=None):
+        words = self.words(fileid,start,end,era,category)
+        return self.far.tag(" ".join(words))
+
+    def lemma_sents(self,fileid=None,start=None,end=None,era=None,category=None):
+        sentences = self.sents(fileid,start,end,era,category)
+        return [self.far.lemmatize(" ".join(s)) for s in sentences]
+
+    def lemma_words(self, fileid=None,start=None,end=None,era=None,category=None):
+        words = self.words(fileid,start,end,era,category)
+        return self.far.lemmatize(" ".join(words))
 
     def getIdFromFileid(self,fileid):
         return self._idsByfileIds[fileid]
@@ -214,6 +231,7 @@ class HistoricalCorpus(XMLCorpusReader):
             id = self._idsByfileIds[fileid]
             sentences = self._genSents([fileid])
             for i,sentence in enumerate(sentences):
+                sentence = self.far.lemmatize(" ".join(sentence))
                 for word in sentence:
                     if stop_words and word in stop_words:
                         continue

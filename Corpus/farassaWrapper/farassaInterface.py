@@ -1,3 +1,5 @@
+import inspect
+
 import jpype
 from jpype import *
 import os
@@ -5,7 +7,8 @@ import os
 class Farasa:
     def __init__(self):
         jvmPath = jpype.getDefaultJVMPath()
-        root = "libs/jars/"
+        root = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+        root += "/libs/jars/"
         path_to_jars = str.join(":", [root + name for name in os.listdir(root)])
         jpype.startJVM(jvmPath,
                        "-Djava.class.path="+path_to_jars)
@@ -14,7 +17,7 @@ class Farasa:
     def segment(self,text):
         return self.far.segmentLine(text)
 
-    def lemmetize(self,text):
+    def lemmatize(self, text):
         return self.far.lemmatizeLine(text)
     #
     def tag(self,text):
@@ -26,12 +29,12 @@ class Farasa:
         sents = tagger.tagLine(lines)
 
         tab = [(w.surface,w.guessPOS,w.genderNumber)for w in sents.clitics]
-        print (tab)
+        # print (tab)
         return tab
         # print(sents)
 
 if __name__ == "__main__":
     test = "يُشار إلى أن اللغة العربية يتحدثها أكثر من 422 مليون نسمة ويتوزع متحدثوها في المنطقة المعروفة باسم الوطن العربي بالإضافة إلى العديد من المناطق الأخرى المجاورة مثل الأهواز وتركيا وتشاد والسنغال وإريتريا وغيرها. وهي اللغة الرابعة من لغات منظمة الأمم المتحدة الرسمية الست."
     far = Farasa()
-    res = far.tag(test)
+    res = far.lemmatize(test)
     print(res)

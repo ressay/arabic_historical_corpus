@@ -47,12 +47,12 @@ if __name__ == "__main__":
     if light_scrape:
         # islamicbook_scrape.scrape_all(3)
         # news_scrape.scrape_all(1)
-        # chi3r_scrape.scrape_all(20)
-        shamela_scrape.scrape_all()
+        chi3r_scrape.scrape_all(5)
     else:
         islamicbook_scrape.scrape_all()
         news_scrape.scrape_all()
         chi3r_scrape.scrape_all()
+        shamela_scrape.scrape_all()
 
     # cleaning
     cleaner.clean()
