@@ -12,7 +12,7 @@ def scrape_all(limit=-1):
       # Asr hadith, category => news
       if bs.bookExists(node.text,books):
           continue
-      fileName = bs.getFilePath(node.text, bs.eras[-1], "news")
+      fileName = bs.getFilePath(node.text, bs.eras[-1], "أخبار")
 
       file = open(fileName, encoding="utf-8", mode="w")
       file.write(urllib.request.urlopen(

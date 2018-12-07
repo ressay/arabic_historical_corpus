@@ -126,10 +126,15 @@ def _readXml():
         print(sent)
     stop = set(nltk.corpus.stopwords.words("arabic"))
     print(stop)
-    apps = corpus.words_apparitions(stop_words=stop)
-    print(len(apps))
-    # with open('apps2.json', 'w') as fp:
-    #     json.dump(apps, fp)
+    import json
+    words = json.loads(open("wassit.json").read())
+    words = set([w.replace(' ','') for w in words.keys()])
+    print(len(words))
+    # print(words)
+    apps = corpus.words_apparitions(words,stop_words=stop)
+    print(len([app for app in apps if len(apps[app])]))
+    with open('apps2.json', 'w') as fp:
+        json.dump(apps, fp)
 
 
 
