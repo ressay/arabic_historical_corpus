@@ -42,10 +42,11 @@ def get_surat():
     return surat
 
 
-def build(idStart,xmlDir):
+def build(id_start,xmlDir):
     surat = get_surat()
+    print('INFO QURAN: assining ids from', id_start)
     for sura in surat:
-        print(surat[sura])
-        _createXml(sura, surat[sura], "quran", xmlDir+"/quran",idStart)
-        idStart += 1
-    return idStart
+        print('INFO QURAN: created sura', sura)
+        _createXml(sura, surat[sura], "quran", xmlDir+"/quran",id_start)
+        id_start += 1
+    return id_start

@@ -2,10 +2,16 @@ import urllib.request
 from bs4 import BeautifulSoup
 import basic as bs
 
-def scrape_page(parent,page,writer):
-    rep = urllib.request.urlopen(parent+page)
+created = 0
+existed = 0
+errors = 0
+n = 0
+
+
+def scrape_page(parent, page, writer):
+    rep = urllib.request.urlopen(parent + page)
     soup = BeautifulSoup(rep, "lxml")
-    div_containers = soup.find('div',id="content")
+    div_containers = soup.find('div', id="content")
     div_containers.find("h1").extract()
     node = div_containers.find("h6")
     if node:
@@ -27,16 +33,14 @@ def scrape_page(parent,page,writer):
     # for node in div_container.find_all("p"):
     #     paragraph += node.text
 
-    writer.write(str(paragraph)+ " ")
+    writer.write(str(paragraph) + " ")
     if nextLink != "":
-        scrape_page(parent,nextLink,writer)
+        scrape_page(parent, nextLink, writer)
 
 
-
-# scrape_page(parent,"aaian-alasr-002.html",None)
-
-def scrapeIslamic(parent,page,type="تاريخ",limit=-1):
-    rep = urllib.request.urlopen(parent+page)
+def scrapeIslamic(parent, page, type="تاريخ", limit=-1):
+    global created, existed, errors
+    rep = urllib.request.urlopen(parent + page)
     soup = BeautifulSoup(rep, "html.parser")
     nextLink = ""
     for node in soup.find_all("a"):
@@ -69,18 +73,23 @@ def scrapeIslamic(parent,page,type="تاريخ",limit=-1):
 
         if era == 'unknown':
             continue
-        if bs.bookExists(book,books):
+
+        if bs.bookExists(book, books):
+            existed = existed + 1
+            print('INFO ISLAMIC_BOOK EXISTED', existed, book)
             limit -= 1
             if not limit:
                 return
             continue
 
-        filename = bs.getFilePath(book, era, type,author)
+        filename = bs.getFilePath(book, era, type, author)
         if filename is None:
-            print('ERROR ISLAMIC_BOOK: filename is None', 'era is: ', str(era))
+            errors = errors + 1
+            print('ERROR ISLAMIC_BOOK', errors, ': filename is None', 'era is: ', str(era))
             continue
         writer = open(filename, encoding="utf-8", mode="w")
-        print('INFO ISLAMIC_BOOK: file created:', filename)
+        created = created + 1
+        print('INFO ISLAMIC_BOOK CREATED', created, filename)
         limit -= 1
         if not limit:
             return
@@ -89,23 +98,28 @@ def scrapeIslamic(parent,page,type="تاريخ",limit=-1):
         writer.close()
 
     if nextLink != "":
-        scrapeIslamic(parent,nextLink,type)
+        scrapeIslamic(parent, nextLink, type)
 
 
-def scrape_all(limit = -1):
+def scrape_all(limit=-1):
     parent = "http://www.islamicbook.ws/tarekh/"
-    scrapeIslamic(parent, "",limit=limit)
+    scrapeIslamic(parent, "", limit=limit)
+
     parents = ["http://www.islamicbook.ws/qbook/", "http://www.islamicbook.ws/ageda/"
         , "http://www.islamicbook.ws/hadeth/", "http://www.islamicbook.ws/asol/", ]
     for parent in parents:
-        scrapeIslamic(parent, "", "دين",limit=limit)
-        if limit > 0: # light mode selected
+        scrapeIslamic(parent, "", "دين", limit=limit)
+        if limit > 0:  # light mode selected
             break
 
     parent = "http://www.islamicbook.ws/adab/"
-    scrapeIslamic(parent, "", "أدب",limit=limit)
+    scrapeIslamic(parent, "", "أدب", limit=limit)
+
     parent = "http://www.islamicbook.ws/amma/"
-    scrapeIslamic(parent, "", "متنوعة",limit=limit)
+    scrapeIslamic(parent, "", "متنوعة", limit=limit)
+
+    return created, existed, errors
+
 
 if __name__ == "__main__":
     scrape_all()

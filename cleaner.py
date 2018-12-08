@@ -82,10 +82,11 @@ def _sentenceTokenizer(content):
     sentences = nltk.PunktSentenceTokenizer().tokenize(content)
     return sentences
 
-def convertScrapedToXml(xmlDir='xmlCorpus'):
+def convertScrapedToXml(xmlDir='xmlCorpus', id_start=1):
+    print('INFO XML CONVERTER: assining ids from', id_start)
     books = bs.loadListOfBooksByEras()
     import json
-    id = quran_corpus_builder.build(1,xmlDir)
+    id = id_start
     tempAuthors = {}
 
     for era in bs.eras:
@@ -94,14 +95,15 @@ def convertScrapedToXml(xmlDir='xmlCorpus'):
             os.mkdir(dir)
         limit = -1
         for book in books[era]:
-            print('INFO CLEAN: cleaning book:', book)
+            print('INFO CLEAN: cleaning book:', book['name'])
             if book['author'] in tempAuthors:
                 infos = tempAuthors[book['author']]
             else:
                 try:
                     infos = bs.getBirthDeathFromAuthor(book['author'])
                     tempAuthors[book['author']] = infos
-                except Exception:
+                except Exception as e:
+                    print('ERROR CLEAN', e)
                     continue
 
             author = {'name': book['author'], 'birth': infos[0], 'death': infos[1]}
@@ -111,8 +113,12 @@ def convertScrapedToXml(xmlDir='xmlCorpus'):
             if not limit: break
     corpus = HistoricalCorpus(xmlDir)
     bk = corpus.booksDescription()
+    print('INFO CLEAN: creating book_description.json')
     with open(xmlDir+'/books_description.json', 'w') as fp:
         json.dump(bk, fp)
+
+    return id_start
+
 def _readXml():
     corpus = HistoricalCorpus(initializer.xmlDir)
     print('INFO CLEAN: len(fileids):', len(corpus.fileids()))

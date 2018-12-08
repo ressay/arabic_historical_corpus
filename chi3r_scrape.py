@@ -23,6 +23,9 @@ def scrape_all(limit = -1):
     rep = urllib.request.urlopen("https://www.aldiwan.net/")
     soup = BeautifulSoup(rep, "lxml")
     i = 0
+    created = 0
+    existed = 0
+    errors = 0
     mapEras = {
         "العصر الجاهلي" : bs.eras[0],
         'عصر المخضرمون': bs.eras[1],
@@ -54,22 +57,22 @@ def scrape_all(limit = -1):
                         #   create a file for everykassida using getFilePath function
 
 
-                        print(i)
                         i = i + 1
                         cEra = mapEras[node.text]
                         if not cEra:
-                            print("WARNING POEM: no era found for it")
+                            print("WARNING POEM: no era found for it", node.text)
                             continue
                         if bs.bookExists(node3.text,books):
-                            print('INFO POEM: book already exists')
+                            existed = existed + 1
+                            print('INFO POEM EXISTED', existed, node3.text)
                             setLimit -= 1
                             if not setLimit:
                                 break
                             continue
                         filename = bs.getFilePath(node3.text, cEra, "شعر", node1.text)
                         if filename is None:
+                            errors = errors + 1
                             print('ERROR POEM: filename is None', 'era is: ', str(cEra))
-                            print()
                             continue
                         # if node.text == "العصر الجاهلي":
                         #     filename = bs.getFilePath(node3.text, "Jahiliy", "poem", node1.text) + ".txt"
@@ -82,7 +85,8 @@ def scrape_all(limit = -1):
                         #     filename = bs.getFilePath(node3.text, "SadrIslam", "poem", node1.text) + ".txt"
                         try:
                             file = open(filename, encoding="utf-8", mode="w")
-                            print("INFO POEM: file created", filename)
+                            created = created + 1
+                            print('INFO POEM CREATED', created, filename)
                             rep = urllib.request.urlopen("https://www.aldiwan.net/" + node3.get("href"))
                             soup3 = BeautifulSoup(rep, "lxml")
                             for main_text in soup3.find_all("div", {"class": "bet-1"}):  # access to kassida link and
@@ -98,13 +102,15 @@ def scrape_all(limit = -1):
                             setLimit -= 1
                             if not setLimit:
                                 break
-                        except IOError:
-                            print("EROOR POEM: IOError")
+                        except IOError as e:
+                            print('ERROR POEM', e)
                             exceptions.write(filename)
                         if not setLimit:
                             break
                     if not setLimit:
                         break
+
+    return created, existed, errors
 
 if __name__ == '__main__':
     scrape_all()

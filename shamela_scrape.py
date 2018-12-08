@@ -6,7 +6,8 @@ import re
 def getPageText(html_page_link ,  last_page_read):
     try:
         html_page = urllib.request.urlopen(html_page_link)
-    except Exception:
+    except Exception as e:
+        print('ERROR SHAMELA', e)
         return ""
     soup = BeautifulSoup(html_page, "lxml")
     page = ""
@@ -31,7 +32,11 @@ def getPageText(html_page_link ,  last_page_read):
 def readBook(book_link):
     x = 1
     book = ""
-    rep = urllib.request.urlopen(book_link)
+    try:
+        rep = urllib.request.urlopen(book_link)
+    except Exception as e:
+        print('ERROR SHAMELA ', e)
+
     soup = BeautifulSoup(rep, "lxml")
     for main_page in soup.find_all("a"):
         read_link = main_page.get("href")
@@ -52,7 +57,9 @@ def scrape_all():
     # print(books)
     rep = urllib.request.urlopen("http://shamela.ws/index.php/categories")
     soup = BeautifulSoup(rep, "lxml")
-
+    created = 0
+    existed = 0
+    errors = 0
     for category in soup.find_all("a"):
         category_link = category.get("href")
         if re.match("/index.php/category/\d+", category_link):
@@ -60,7 +67,8 @@ def scrape_all():
                 try:
                     rep = urllib.request.urlopen("http://shamela.ws" + category_link)
                     soup2 = BeautifulSoup(rep, "lxml")
-                except:
+                except Exception as e:
+                    print('ERROR SHAMELA', e)
                     continue
                 for book in soup2.find_all("a"):
                     book_link = book.get("href")
@@ -72,19 +80,29 @@ def scrape_all():
                             if era == 'unknown':
                                 continue
                             # if not bs.bookExists(book.text, era):
+
+                            if bs.bookExists(book.text, books):
+                                print('INFO SHAMELA EXISTED', existed , book.text)
+                                existed = existed + 1
+                                continue
+
                             if not bs.bookExists(book.text, books):
                                 filename = bs.getFilePath(book.text, era, category.text, author)
+                                
                                 if filename is None:
-                                    print('ERROR SHEMAL: filename is None', 'era is:', str(era))
+                                    print('ERROR SHAMELA', errors, ': filename is None', 'era is:', str(era))
+                                    errors = errors + 1
                                     continue
                                 b = readBook("http://shamela.ws" + book_link)
+                                
                                 file = open(filename, encoding="utf-8", mode="w")
-                                print('INFO SHAMELA: file created', filename)
+                                print('INFO SHAMELA CREATED', created, filename)
+                                created = created + 1
                                 file.write(b)
                                 file.close()
                         # except Exception:
                         #     print('in exception2')
                         #     continue
-
+    return created, existed, errors
 if __name__ == '__main__':
     scrape_all()
