@@ -46,7 +46,10 @@ def scrape_all(limit = -1):
             if node.text in mapEras:# ["العصر الجاهلي", "العصر العباسي", "العصر الإسلامي",
                              #"العصر الاموي"]:  # get all jahili cho3araa list link
                 setLimit = limit
-                rep = urllib.request.urlopen("https://www.aldiwan.net/" + node.get("href"))
+                try:
+                    rep = urllib.request.urlopen("https://www.aldiwan.net/" + node.get("href"))
+                except Exception as e:
+                    print('ERROR POEM', e)
                 soup = BeautifulSoup(rep, "lxml")
 
                 for node1 in soup.find_all("a", {"class": "s-button"}):  # get every cha3ir diwan
