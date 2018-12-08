@@ -77,12 +77,10 @@ def scrapeIslamic(parent,page,type="تاريخ",limit=-1):
 
         filename = bs.getFilePath(book, era, type,author)
         if filename is None:
-            print('filename is None')
-            print('era is: ' + str(era))
+            print('ERROR ISLAMIC_BOOK: filename is None', 'era is: ', str(era))
             continue
         writer = open(filename, encoding="utf-8", mode="w")
-        print('file created:')
-        print(filename)
+        print('INFO ISLAMIC_BOOK: file created:', filename)
         limit -= 1
         if not limit:
             return

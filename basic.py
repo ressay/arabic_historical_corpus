@@ -47,7 +47,7 @@ def getBirthDeathFromAuthor(name,lang='ar'):
         "^.*مواليد (\d+)$"
     ]
     try:
-        so = wp.page(name, lang=lang,verbose=False).get_more()
+        so = wp.page(name, lang=lang,verbose=False, silent=True).get_more()
         infos = []
         # print(so.data['categories'])
         for st in so.data['categories']:
@@ -86,7 +86,7 @@ def getBirthDeathFromAuthor(name,lang='ar'):
         else:
             return ["unknown","unknown"]
         try:
-            so = wp.page(name, lang=lang,verbose=False).get_more()
+            so = wp.page(name, lang=lang,verbose=False, silent=True).get_more()
             infos = []
             # print(so.data['categories'])
             for st in so.data['categories']:

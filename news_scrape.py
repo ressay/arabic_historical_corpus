@@ -16,11 +16,11 @@ def scrape_all(limit=-1):
 
       file = open(fileName, encoding="utf-8", mode="w")
       if fileName is None:
-        print('filename is None')
+        print('ERROR NEWS: filename is None')
         continue
       file.write(urllib.request.urlopen(
         "http://aracorpus.e3rab.com/argistestsrv.nmsu.edu/AraCorpus/Data/" + node.text).read().decode('windows-1256'))
-      print("the file : " + node.text + "is writen succesfully")
+      print("INFO NEWS: file created" + node.text + "is writen succesfully")
       limit -= 1
       if not limit:
         break

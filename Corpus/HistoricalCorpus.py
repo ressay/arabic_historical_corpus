@@ -151,8 +151,7 @@ class HistoricalCorpus(XMLCorpusReader):
                     try:
                         yield nltk.TreebankWordTokenizer().tokenize(entry.text)
                     except TypeError:
-                        print(entry.text)
-                        print(fileid)
+                        print('ERROR CORPUS_READER: entry TypeError', entry.text, 'fileid', fileid)
 
     def _gen_sents_class_based(self, fileid):
         metadata = self.metadata(fileid)
@@ -169,8 +168,6 @@ class HistoricalCorpus(XMLCorpusReader):
         for sentence in sentences:
             if end is not None and cpt >= end:
                 break
-            print(cpt)
-            print(len(sentence))
             words = []
             if cpt < start:
                 if cpt + len(sentence) >= start:

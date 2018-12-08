@@ -94,8 +94,7 @@ def convertScrapedToXml(xmlDir='xmlCorpus'):
             os.mkdir(dir)
         limit = -1
         for book in books[era]:
-            print('cleaning book:')
-            print(book)
+            print('INFO CLEAN: cleaning book:', book)
             if book['author'] in tempAuthors:
                 infos = tempAuthors[book['author']]
             else:
@@ -116,24 +115,18 @@ def convertScrapedToXml(xmlDir='xmlCorpus'):
         json.dump(bk, fp)
 def _readXml():
     corpus = HistoricalCorpus(initializer.xmlDir)
-    print(len(corpus.fileids()))
-    print(corpus.fileids(category="poem"))
+    print('INFO CLEAN: len(fileids):', len(corpus.fileids()))
     tagged_words = corpus.lemma_words(end=10)
-    print(tagged_words)
     tagged_words = corpus.lemma_words(end=200)
-    print(tagged_words)
     sents = corpus.lemma_sents(end=20)
-    for sent in sents:
-        print(sent)
     stop = set(nltk.corpus.stopwords.words("arabic"))
-    print(stop)
+    print('INFO CLEAN: stopwords:', stop)
     import json
     words = json.loads(open("wassit.json").read())
     words = set([w.replace(' ','') for w in words.keys()])
-    print(len(words))
+    print('INFO CLEAN: wassit contains', len(words), 'words')
     # print(words)
     apps = corpus.words_apparitions(words,stop_words=stop)
-    print(len([app for app in apps if len(apps[app])]))
     with open('apps2.json', 'w') as fp:
         json.dump(apps, fp)
 

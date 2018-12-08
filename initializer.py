@@ -22,7 +22,7 @@ def createDirectories():
     for x in eras:
         if not os.path.isdir(path + '/' + x):
             os.makedirs(path + '/' + x)  # line B
-            print(x + ' created.')
+            print('INFO INIT:', x + ' created.')
 
 if __name__ == "__main__":
     import islamicbook_scrape
@@ -31,6 +31,9 @@ if __name__ == "__main__":
     import shamela_scrape
     import cleaner
     import os
+
+
+    print ('INFO INIT: initializer started')
 
     createDirectories()
     light_scrape = False
@@ -41,25 +44,41 @@ if __name__ == "__main__":
             light_scrape = True
 
 
-    print('starting to scrape')
+    print('INFO INIT: starting to scrape')
     if light_scrape:
-        print('light scraping mode selected')
+        print('INFO INIT: light scraping mode selected')
         islamicbook_scrape.scrape_all(1)
         # news_scrape.scrape_all(1)
         chi3r_scrape.scrape_all(1)
     else:
-        print('heavy scrape mode selected')
+        print('INFO INIT: heavy scrape mode selected')
+        print('INFO INIT: islamicbook scrapping started')
         islamicbook_scrape.scrape_all()
+        print('INFO INIT: islamicbook scrapping finished')
+        print('INFO INIT: news scrapping started')
         news_scrape.scrape_all()
+        print('INFO INIT: news scrapping finished')
+        print('INFO INIT: chi3r scrapping started')
         chi3r_scrape.scrape_all()
+        print('INFO INIT: chi3r scrapping finished')
+        print('INFO INIT: shamela scrapping started')
         shamela_scrape.scrape_all()
+        print('INFO INIT: shamela scrapping finished')
 
-    print('cleaning...')
+    print('INFO INIT: scrapping finished')
+
+    print('INFO INIT: cleaning started')
     # cleaning
     cleaner.clean()
 
-    print('converting to xml...')
+    print('INFO INIT: cleaning finished')
+
+    print('INFO INIT: converting to xml started')
     # convert to xml
     if not os.path.isdir(xmlDir):
         os.makedirs(xmlDir)  # line B
     cleaner.convertScrapedToXml(xmlDir)
+
+    print('INFO INIT: converting to xml finished')
+
+    print ('INFO INIT: initializer finished')

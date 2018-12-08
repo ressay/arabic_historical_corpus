@@ -75,16 +75,13 @@ def scrape_all():
                             if not bs.bookExists(book.text, books):
                                 filename = bs.getFilePath(book.text, era, category.text, author)
                                 if filename is None:
-                                    print('filename is None')
-                                    print('era is: ' + str(era))
+                                    print('ERROR SHEMAL: filename is None', 'era is:', str(era))
                                     continue
                                 b = readBook("http://shamela.ws" + book_link)
                                 file = open(filename, encoding="utf-8", mode="w")
-                                print('file created')
-                                print(filename)
+                                print('INFO SHAMELA: file created', filename)
                                 file.write(b)
                                 file.close()
-                                print('done writing')
                         # except Exception:
                         #     print('in exception2')
                         #     continue
