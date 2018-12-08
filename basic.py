@@ -191,8 +191,9 @@ def loadListOfBooksByEras():
 
 
 if __name__ == "__main__":
+    pass
     # saveListOfBooks()
-    print(getEraFromAuthor("إبراهيم بن محمد الحقي","ar"))
+    # print(getEraFromAuthor("إبراهيم بن محمد الحقي","ar"))
     # res = wikipediaFromGoogle("ghandi")
     # if res:
     #     print(res[0])
