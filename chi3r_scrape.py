@@ -61,7 +61,7 @@ def scrapeByAuthor(created,existed,errors):
                 if era == 'unknown' or era is None:
                     continue
                 c, e, er, setLimit = scrape_author(soup2, era, author,
-                                                   books, 2, created, existed, errors)
+                                                   books, -1, created, existed, errors)
                 created += c
                 existed += e
                 errors += er
