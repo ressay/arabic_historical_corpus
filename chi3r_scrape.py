@@ -3,6 +3,76 @@ from bs4 import BeautifulSoup
 import basic as bs
 import re
 
+
+def scrape_author(soup2,cEra,author,books,setLimit,created,existed,errors):
+    for node3 in soup2.find_all("a", {"class": "pull-right"}):  # get every chi3r from diwan link
+        #   create a file for every kassida using getFilePath function
+
+        if bs.bookExists(node3.text, books):
+            existed = existed + 1
+            print('INFO POEM EXISTED', existed, node3.text)
+            setLimit -= 1
+            if not setLimit:
+                break
+            continue
+        filename = bs.getFilePath(node3.text, cEra, "شعر", author)
+        if filename is None:
+            errors = errors + 1
+            print('ERROR POEM: filename is None', 'era is: ', str(cEra))
+            continue
+        try:
+            file = open(filename, encoding="utf-8", mode="w")
+            created = created + 1
+            print('INFO POEM CREATED', created, filename)
+            rep = urllib.request.urlopen("https://www.aldiwan.net/" + node3.get("href"))
+            soup3 = BeautifulSoup(rep, "lxml")
+            for main_text in soup3.find_all("div", {"class": "bet-1"}):  # access to kassida link and
+                chatr = 1
+                for prt in main_text.find_all("h3"):
+                    if chatr % 2 == 0:
+                        file.write(prt.text)
+                    else:
+                        file.write(re.sub("\n", "\t", prt.text))
+                    chatr = chatr + 1
+                break
+            file.close()
+            setLimit -= 1
+            if not setLimit:
+                break
+        except IOError as e:
+            print('ERROR POEM', e)
+        if not setLimit:
+            break
+    return created,existed,errors,setLimit
+
+def scrapeByAuthor(created,existed,errors):
+    books = bs.loadListOfBooksByEras()
+    for i in range(1,29):
+        link = 'https://www.aldiwan.net/letter'+str(i)
+        try:
+            rep = urllib.request.urlopen(link)
+            soup = BeautifulSoup(rep, "lxml")
+
+            for node1 in soup.find_all("a", {"class": "s-button"}):  # get every cha3ir diwan
+                rep = urllib.request.urlopen("https://www.aldiwan.net/" + node1.get("href"))
+                soup2 = BeautifulSoup(rep, "lxml")
+                author = node1.text
+                era = bs.getEraFromAuthor(author)
+                if era == 'unknown' or era is None:
+                    continue
+                c, e, er, setLimit = scrape_author(soup2, era, author,
+                                                   books, 2, created, existed, errors)
+                created += c
+                existed += e
+                errors += er
+                if not setLimit:
+                    break
+        except Exception as e:
+            print('ERROR POEM', e)
+    return created,existed,errors
+
+
+
 """ procedure :
 website -> jahili -> {
                           cha3ir1 -> diwan -> {
@@ -22,7 +92,6 @@ website -> jahili -> {
 def scrape_all(limit = -1):
     rep = urllib.request.urlopen("https://www.aldiwan.net/")
     soup = BeautifulSoup(rep, "lxml")
-    i = 0
     created = 0
     existed = 0
     errors = 0
@@ -39,12 +108,14 @@ def scrape_all(limit = -1):
     }
 
     books = bs.loadListOfBooksByEras()
-    exceptions = open("exceptions.txt", encoding="utf-8", mode="w")
     for eras in soup.find_all("div", {"class": "col-md-4"}):
         for node in eras.find_all("a"):
-            if node.text in mapEras:# ["العصر الجاهلي", "العصر العباسي", "العصر الإسلامي",
-                             #"العصر الاموي"]:  # get all jahili cho3araa list link
+            if node.text in mapEras:
                 setLimit = limit
+                cEra = mapEras[node.text]
+                if not cEra:
+                    print("WARNING POEM: no era found for it", node.text)
+                    continue
                 try:
                     rep = urllib.request.urlopen("https://www.aldiwan.net/" + node.get("href"))
                 except Exception as e:
@@ -54,65 +125,20 @@ def scrape_all(limit = -1):
                 for node1 in soup.find_all("a", {"class": "s-button"}):  # get every cha3ir diwan
                     rep = urllib.request.urlopen("https://www.aldiwan.net/" + node1.get("href"))
                     soup2 = BeautifulSoup(rep, "lxml")
-
-                    for node3 in soup2.find_all("a", {"class": "pull-right"}):  # get every chi3r from diwan link
-                        #   create a file for everykassida using getFilePath function
-
-
-                        i = i + 1
-                        cEra = mapEras[node.text]
-                        if not cEra:
-                            print("WARNING POEM: no era found for it", node.text)
-                            continue
-                        if bs.bookExists(node3.text,books):
-                            existed = existed + 1
-                            print('INFO POEM EXISTED', existed, node3.text)
-                            setLimit -= 1
-                            if not setLimit:
-                                break
-                            continue
-                        filename = bs.getFilePath(node3.text, cEra, "شعر", node1.text)
-                        if filename is None:
-                            errors = errors + 1
-                            print('ERROR POEM: filename is None', 'era is: ', str(cEra))
-                            continue
-                        # if node.text == "العصر الجاهلي":
-                        #     filename = bs.getFilePath(node3.text, "Jahiliy", "poem", node1.text) + ".txt"
-                        #     # error in line 40 in one of the files i get file not found (file not getting created)
-                        # elif node.text == "العصر العباسي":
-                        #     filename = bs.getFilePath(node3.text, "Abbasid", "poem", node1.text) + ".txt"
-                        # elif node.text == "العصر الأموي":
-                        #     filename = bs.getFilePath(node3.text, "Umayyad", "poem", node1.text) + ".txt"
-                        # elif node.text == "العصر الإسلامي":
-                        #     filename = bs.getFilePath(node3.text, "SadrIslam", "poem", node1.text) + ".txt"
-                        try:
-                            file = open(filename, encoding="utf-8", mode="w")
-                            created = created + 1
-                            print('INFO POEM CREATED', created, filename)
-                            rep = urllib.request.urlopen("https://www.aldiwan.net/" + node3.get("href"))
-                            soup3 = BeautifulSoup(rep, "lxml")
-                            for main_text in soup3.find_all("div", {"class": "bet-1"}):  # access to kassida link and
-                                chatr = 1
-                                for prt in main_text.find_all("h3"):
-                                    if chatr % 2 == 0:
-                                        file.write(prt.text)
-                                    else:
-                                        file.write(re.sub("\n", "\t", prt.text))
-                                    chatr = chatr + 1
-                                break
-                            file.close()
-                            setLimit -= 1
-                            if not setLimit:
-                                break
-                        except IOError as e:
-                            print('ERROR POEM', e)
-                            exceptions.write(filename)
-                        if not setLimit:
-                            break
+                    c,e,er,setLimit = scrape_author(soup2,cEra,node1.text,
+                                           books,setLimit,created,existed,errors)
+                    created += c
+                    existed += e
+                    errors += er
                     if not setLimit:
                         break
-
+    if limit == -1:
+        c,e,er = scrapeByAuthor(created,existed,errors)
+        created += c
+        existed += e
+        errors += er
     return created, existed, errors
 
 if __name__ == '__main__':
-    scrape_all()
+    scrapeByAuthor(0,0,0)
+    # scrape_all()
