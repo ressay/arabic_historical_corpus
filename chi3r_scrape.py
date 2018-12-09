@@ -35,8 +35,7 @@ def scrape_all(limit = -1):
         'العصر الايوبي' : bs.eras[4],
         'العصر العثماني' : bs.eras[4],
         'العصر المملوكي' : bs.eras[4],
-        'العصر الأندلسي' : bs.eras[4],
-        'العصر الحديث' : bs.eras[5]
+        'العصر الأندلسي' : bs.eras[4]
     }
 
     books = bs.loadListOfBooksByEras()

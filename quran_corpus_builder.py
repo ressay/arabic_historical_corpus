@@ -36,9 +36,10 @@ def get_surat():
 
     for child in root.iter('sura'):
         # print(child.attrib['name'])
-        surat[child.attrib['name']]=[]
+        name = 'سورة '+child.attrib['name']
+        surat[name]=[]
         for gch in child.iter('aya'):
-            surat[child.attrib['name']].append(gch.attrib['text'])
+            surat[name].append(gch.attrib['text'])
     return surat
 
 
@@ -47,6 +48,6 @@ def build(id_start,xmlDir):
     print('INFO QURAN: assining ids from', id_start)
     for sura in surat:
         print('INFO QURAN: created sura', sura)
-        _createXml(sura, surat[sura], "quran", xmlDir+"/quran",id_start)
+        _createXml(sura, surat[sura], "القرآن", xmlDir+"/القرآن",id_start)
         id_start += 1
     return id_start
