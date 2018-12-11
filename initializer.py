@@ -37,13 +37,13 @@ def scrape(limit_shamela=-1, limit_chi3r=-1, limit_news=-1, limit_islamic=-1):
     print('INFO INIT: errors islamic', errors_islamic)
     print('INFO INIT: islamicbook scrapping finished')
 
-    print('INFO INIT: cleaning islamic started')
-    cleaner.clean()
-    print('INFO INIT: cleaning islamic finished')
+    #print('INFO INIT: cleaning islamic started')
+    #cleaner.clean()
+    #print('INFO INIT: cleaning islamic finished')
 
-    print('INFO INIT: converting islamic to xml started')
-    id_start = cleaner.convertScrapedToXml(xmlDir, id_start + 1)
-    print('INFO INIT: converting islamic to xml finished')
+    #print('INFO INIT: converting islamic to xml started')
+    #id_start = cleaner.convertScrapedToXml(xmlDir, id_start + 1)
+    #print('INFO INIT: converting islamic to xml finished')
 
     #News
     print('INFO INIT: news scrapping started')
@@ -53,13 +53,13 @@ def scrape(limit_shamela=-1, limit_chi3r=-1, limit_news=-1, limit_islamic=-1):
     print('INFO INIT: errors news', errors_news)
     print('INFO INIT: news scrapping finished')
 
-    print('INFO INIT: cleaning news started')
-    cleaner.clean()
-    print('INFO INIT: cleaning news finished')
+    #print('INFO INIT: cleaning news started')
+    #cleaner.clean()
+    #print('INFO INIT: cleaning news finished')
 
-    print('INFO INIT: converting news to xml started')
-    id_start = cleaner.convertScrapedToXml(xmlDir, id_start + 1)
-    print('INFO INIT: converting news to xml finished')
+    #print('INFO INIT: converting news to xml started')
+    #id_start = cleaner.convertScrapedToXml(xmlDir, id_start + 1)
+    #print('INFO INIT: converting news to xml finished')
 
     #Chi3r
     print('INFO INIT: chi3r scrapping started')
@@ -69,13 +69,22 @@ def scrape(limit_shamela=-1, limit_chi3r=-1, limit_news=-1, limit_islamic=-1):
     print('INFO INIT: errors chi3r', errors_chi3r)
     print('INFO INIT: chi3r scrapping finished')
 
-    print('INFO INIT: cleaning chi3r started')
-    cleaner.clean()
-    print('INFO INIT: cleaning chi3r finished')
+    #print('INFO INIT: cleaning chi3r started')
+    #cleaner.clean()
+    #print('INFO INIT: cleaning chi3r finished')
 
-    print('INFO INIT: converting chi3r to xml started')
+    #print('INFO INIT: converting chi3r to xml started')
+    #cleaner.convertScrapedToXml(xmlDir, id_start + 1)
+    #print('INFO INIT: converting chi3r to xml finished')
+
+
+    print('INFO INIT: cleaning chi3r, news, islamic_books started')
+    cleaner.clean()
+    print('INFO INIT: cleaning chi3r, news, islamic_books finished')
+
+    print('INFO INIT: converting chi3r, news, islamic_books to xml started')
     cleaner.convertScrapedToXml(xmlDir, id_start + 1)
-    print('INFO INIT: converting chi3r to xml finished')
+    print('INFO INIT: converting chi3r, news, islamic_books to xml finished')
 
     # Shamela
     print('INFO INIT: shamela scrapping started')
