@@ -5,9 +5,11 @@ import re
 
 def getPageText(html_page_link ,  last_page_read):
     try:
+        print('DEBUG SHAMELA: getting page', html_page_link)
         html_page = urllib.request.urlopen(html_page_link)
+        print('DEBUG SHAMELA: got page successuffly', html_page_link)
     except Exception as e:
-        print('ERROR SHAMELA', e)
+        print('ERROR SHAMELA: cannot get the page', html_page_link, e)
         return ""
     soup = BeautifulSoup(html_page, "lxml")
     page = ""
