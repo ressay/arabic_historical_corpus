@@ -128,7 +128,7 @@ if __name__ == "__main__":
     # cpt = quran_corpus_builder.build(1,xmlDir)
     # cleaner.convertScrapedToXml(xmlDir,cpt)
     # exit(0)
-    print ('INFO INIT: initializer started')
+    print('INFO INIT: initializer started')
 
     createDirectories()
     light_scrape = False
