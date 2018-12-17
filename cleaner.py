@@ -70,6 +70,7 @@ def _createXml(path,name,author,type,savePath,era,id):
         os.mkdir(savePath)
     filepath = savePath+'/'+name+".xml"
     tree.write(filepath)
+
     return filepath
 
 def containsPunctuation(content):

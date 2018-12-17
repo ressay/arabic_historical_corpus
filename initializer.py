@@ -31,55 +31,67 @@ def scrape(limit_shamela=-1, limit_chi3r=-1, limit_news=-1, limit_islamic=-1):
 
     #Islamic
     print('INFO INIT: islamicbook scrapping started')
-    created_islamic, existed_islamic, errors_islamic = islamicbook_scrape.scrape_all(limit_islamic)
+    if not limit_islamic:
+        created_islamic, existed_islamic, errors_islamic = (0,0,0)
+    else:
+        created_islamic, existed_islamic, errors_islamic = islamicbook_scrape.scrape_all(limit_islamic)
     print('INFO INIT: created islamic', created_islamic)
     print('INFO INIT: existed islamic', existed_islamic)
     print('INFO INIT: errors islamic', errors_islamic)
     print('INFO INIT: islamicbook scrapping finished')
 
-    print('INFO INIT: cleaning islamic started')
-    cleaner.clean()
-    print('INFO INIT: cleaning islamic finished')
-
-    print('INFO INIT: converting islamic to xml started')
-    id_start = cleaner.convertScrapedToXml(xmlDir, id_start + 1)
-    print('INFO INIT: converting islamic to xml finished')
+    # print('INFO INIT: cleaning islamic started')
+    # cleaner.clean()
+    # print('INFO INIT: cleaning islamic finished')
+    #
+    # print('INFO INIT: converting islamic to xml started')
+    # id_start = cleaner.convertScrapedToXml(xmlDir, id_start + 1)
+    # print('INFO INIT: converting islamic to xml finished')
 
     #News
     print('INFO INIT: news scrapping started')
-    created_news, existed_news, errors_news = news_scrape.scrape_all(limit_news)
+    if not limit_news:
+        created_news, existed_news, errors_news = (0,0,0)
+    else:
+        created_news, existed_news, errors_news = news_scrape.scrape_all(limit_news)
     print('INFO INIT: created news', created_news)
     print('INFO INIT: existed news', existed_news)
     print('INFO INIT: errors news', errors_news)
     print('INFO INIT: news scrapping finished')
 
-    print('INFO INIT: cleaning news started')
-    cleaner.clean()
-    print('INFO INIT: cleaning news finished')
-
-    print('INFO INIT: converting news to xml started')
-    id_start = cleaner.convertScrapedToXml(xmlDir, id_start + 1)
-    print('INFO INIT: converting news to xml finished')
+    # print('INFO INIT: cleaning news started')
+    # cleaner.clean()
+    # print('INFO INIT: cleaning news finished')
+    #
+    # print('INFO INIT: converting news to xml started')
+    # id_start = cleaner.convertScrapedToXml(xmlDir, id_start + 1)
+    # print('INFO INIT: converting news to xml finished')
 
     #Chi3r
     print('INFO INIT: chi3r scrapping started')
-    created_chi3r, existed_chi3r, errors_chi3r = chi3r_scrape.scrape_all(limit_chi3r)
+    if not limit_chi3r:
+        created_chi3r, existed_chi3r, errors_chi3r = (0,0,0)
+    else:
+        created_chi3r, existed_chi3r, errors_chi3r = chi3r_scrape.scrape_all(limit_chi3r)
     print('INFO INIT: created chi3r', created_chi3r)
     print('INFO INIT: existed chi3r', existed_chi3r)
     print('INFO INIT: errors chi3r', errors_chi3r)
     print('INFO INIT: chi3r scrapping finished')
 
-    print('INFO INIT: cleaning chi3r started')
-    cleaner.clean()
-    print('INFO INIT: cleaning chi3r finished')
-
-    print('INFO INIT: converting chi3r to xml started')
-    cleaner.convertScrapedToXml(xmlDir, id_start + 1)
-    print('INFO INIT: converting chi3r to xml finished')
+    # print('INFO INIT: cleaning chi3r started')
+    # cleaner.clean()
+    # print('INFO INIT: cleaning chi3r finished')
+    #
+    # print('INFO INIT: converting chi3r to xml started')
+    # cleaner.convertScrapedToXml(xmlDir, id_start + 1)
+    # print('INFO INIT: converting chi3r to xml finished')
 
     # Shamela
     print('INFO INIT: shamela scrapping started')
-    created_shamela, existed_shamela, errors_shamela = shamela_scrape.scrape_all()
+    if not limit_shamela:
+        created_shamela, existed_shamela, errors_shamela = (0,0,0)
+    else:
+        created_shamela, existed_shamela, errors_shamela = shamela_scrape.scrape_all()
     print('INFO INIT: created shamela', created_shamela)
     print('INFO INIT: existed shamela', existed_shamela)
     print('INFO INIT: errors shamela', errors_shamela)
@@ -93,9 +105,9 @@ def scrape(limit_shamela=-1, limit_chi3r=-1, limit_news=-1, limit_islamic=-1):
     id_start = cleaner.convertScrapedToXml(xmlDir, id_start + 1)
     print('INFO INIT: converting shamela to xml finished')
 
-    created = created_chi3r + created_islamic + created_news + created_shamela
-    existed = existed_chi3r + existed_islamic + existed_news + existed_shamela
-    errors = errors_chi3r + errors_islamic + errors_news + errors_shamela
+    created = created_chi3r + created_islamic + created_news #+ created_shamela
+    existed = existed_chi3r + existed_islamic + existed_news #+ existed_shamela
+    errors = errors_chi3r + errors_islamic + errors_news #+ errors_shamela
 
     return created, existed, errors
 
@@ -113,20 +125,35 @@ if __name__ == "__main__":
     import quran_corpus_builder
     import os
 
+    cpt = quran_corpus_builder.build(1,xmlDir)
+    # cleaner.convertScrapedToXml(xmlDir,cpt)
+    # exit(0)
     print ('INFO INIT: initializer started')
 
     createDirectories()
     light_scrape = False
 
-    options, remainder = getopt.getopt(sys.argv[1:], 'l',[])
+    options, remainder = getopt.getopt(sys.argv[1:], 'l:x:r',[])
     for opt,arg in options:
         if opt == '-l':
             light_scrape = True
+        if opt == '-x':
+            if not os.path.isdir(arg):
+                print('ERROR: PATH ', arg, ' DOES NOT EXIST')
+                exit(1)
+            xmlDir = arg + '/xmlCorpus'  # where to put xml files
+        if opt == '-r':
+            if not os.path.isdir(arg):
+                print('ERROR: PATH ', arg, ' DOES NOT EXIST')
+                exit(1)
+            path = arg + "/rawData"  # where to put scraped files
+
 
     print('INFO INIT: starting to scrape')
     if light_scrape:
         print('INFO INIT: light scraping mode selected')
-        created, existed, errors = scrape(2, 2, 2, 2)
+        created, existed, errors = scrape(limit_shamela=0, limit_chi3r=10,
+                                          limit_islamic=2, limit_news=0)
     else:
         print('INFO INIT: heavy scrape mode selected')
         created, existed, errors = scrape()

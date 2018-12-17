@@ -1,3 +1,8 @@
+import os
+import inspect
+
+from pyarabic import araby
+
 try: from xml.etree import cElementTree as ElementTree
 except ImportError: from xml.etree import ElementTree
 
@@ -83,15 +88,21 @@ class HistoricalCorpus(XMLCorpusReader):
         super().__init__(root, fileids, wrap_etree)
         self._booksByEra = {}
         self._booksByType = {}
+        self._eras = []
+        self._categories = []
         self._fileidsByIds = {}
         self._idsByfileIds = {}
         self._far = None
+        self.countFiles = 0
         for fileid in self.fileids():
             metadata = self.metadata(fileid)
             t = metadata['type']
             era = metadata['era']
             id = metadata['id']
-
+            if era not in self._eras:
+                self._eras.append(era)
+            if t not in self._categories:
+                self._categories.append(t)
             self._fileidsByIds[id] = fileid
             self._idsByfileIds[fileid] = id
 
@@ -104,6 +115,12 @@ class HistoricalCorpus(XMLCorpusReader):
             else:
                 self._booksByType[t] = [fileid]
 
+
+    def eras(self):
+        return self._eras
+
+    def categories(self):
+        return self._categories
 
     def xml(self, fileid=None):
         # Make sure we have exactly one file -- no concatenating XML.
@@ -151,7 +168,10 @@ class HistoricalCorpus(XMLCorpusReader):
                     try:
                         yield nltk.TreebankWordTokenizer().tokenize(entry.text)
                     except TypeError:
-                        print('ERROR CORPUS_READER: entry TypeError', entry.text, 'fileid', fileid)
+                        print(entry.text)
+                        print(fileid)
+                entry.clear()
+
 
     def _gen_sents_class_based(self, fileid):
         metadata = self.metadata(fileid)
@@ -168,6 +188,8 @@ class HistoricalCorpus(XMLCorpusReader):
         for sentence in sentences:
             if end is not None and cpt >= end:
                 break
+            print(cpt)
+            print(len(sentence))
             words = []
             if cpt < start:
                 if cpt + len(sentence) >= start:
@@ -203,19 +225,19 @@ class HistoricalCorpus(XMLCorpusReader):
         return self._far
     def tagged_sents(self,fileid=None,start=None,end=None,era=None,category=None):
         sentences = self.sents(fileid,start,end,era,category)
-        return [self.farasa().tag(" ".join(s)) for s in sentences]
+        return [list(self.farasa().tag(" ".join(s))) for s in sentences]
 
     def tagged_words(self, fileid=None,start=None,end=None,era=None,category=None):
         words = self.words(fileid,start,end,era,category)
-        return self.farasa().tag(" ".join(words))
+        return list(self.farasa().tag(" ".join(words)))
 
     def lemma_sents(self,fileid=None,start=None,end=None,era=None,category=None):
         sentences = self.sents(fileid,start,end,era,category)
-        return [self.farasa().lemmatize(" ".join(s)) for s in sentences]
+        return [list(self.farasa().lemmatize(" ".join(s))) for s in sentences]
 
     def lemma_words(self, fileid=None,start=None,end=None,era=None,category=None):
         words = self.words(fileid,start,end,era,category)
-        return self.farasa().lemmatize(" ".join(words))
+        return list(self.farasa().lemmatize(" ".join(words)))
 
     def getIdFromFileid(self,fileid):
         return self._idsByfileIds[fileid]
@@ -223,23 +245,80 @@ class HistoricalCorpus(XMLCorpusReader):
     def getFileIdFromId(self,id):
         return self._fileidsByIds[id]
 
-    def words_apparitions(self,dictionarySet,fileid=None,era=None,category=None,stop_words=None):
-        fileids = self.fileids(era,category)
+    def word_apparitions_gen(self,dictionarySet,fileid=None,era=None,
+                          category=None,stop_words=None,get_sentences=False,context_size=5,
+                             lemma=True, limit=-1, limitByFile=-1):
+        if stop_words is None:
+            root = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+            stop_words = root+'/stop_words'
+            stop_words = open(stop_words,'r').readlines()
+            stop_words = set(stop_word[:-1] for stop_word in stop_words)
+        fileids = self.fileids(era, category)
+
+        limits = dict((word, limit) for word in dictionarySet if word not in stop_words)
         if fileid:
             fileids = [fileid]
-        apparitions = {}
-        for word in dictionarySet:
-            apparitions[word] = []
         for fileid in fileids:
+            print('INFO GET APPEARS HISDICT: DOING FILE: ',fileid)
+            self.countFiles += 1
+            print('INFO GET APPEARS HISDICT: COUND FILES ',self.countFiles,
+                  ' OUT OF ', len(self.fileids()))
+            limitsbf = dict((word, limitByFile) for word in dictionarySet if word not in stop_words)
             id = self._idsByfileIds[fileid]
             sentences = self._genSents([fileid])
-            for i,sentence in enumerate(sentences):
-                sentence = self.farasa().lemmatize(" ".join(sentence))
-                for word in sentence:
-                    if stop_words and word in stop_words:
+            i = 0
+            for sentence in sentences:
+                if lemma:
+                    lsentence = self.farasa().lemmatize(" ".join(sentence))
+                else:
+                    lsentence = araby.strip_tashkeel(" ".join(sentence)).split()
+                pos = 0
+                for word in lsentence:
+                    pos += 1
+
+                    if word not in limitsbf:
                         continue
-                    if word in apparitions:
-                        apparitions[word].append((id,i))
+                    if word not in limits:
+                        continue
+                    if get_sentences:
+                        low = max([0, pos - context_size])
+                        high = min([len(sentence), pos + context_size])
+                        out_sentence = sentence[low:high]
+                        yield word, {"file_id": id, "sentence_pos": i,
+                                     "word_pos": pos, 'sentence': " ".join(out_sentence)}
+                    else:
+                        yield word, {"file_id": id, "sentence_pos": i, "word_pos": pos}
+                    limits[word] -= 1
+                    if not limits[word]:
+                        del limits[word]
+                        if not len(limits):
+                            return
+                    limitsbf[word] -= 1
+                    if not limitsbf[word]:
+                        del limitsbf[word]
+                i += 1
+
+
+    def words_apparitions(self,dictionarySet,fileid=None,era=None,
+                          category=None,stop_words=None,get_sentences=False,context_size=5,
+                          lemma=True,limit=-1,limitByFile=-1):
+        apparitions = {}
+        eras = self.eras()
+        categories = self.categories()
+        if era:
+            eras = [era]
+        if category:
+            categories = [category]
+        self.countFiles = 0
+        for era in eras:
+            for category in categories:
+                for w, info in self.word_apparitions_gen(dictionarySet, fileid, era, category,
+                                                         stop_words, get_sentences, context_size,
+                                                         lemma, limit,limitByFile):
+                    if w in apparitions:
+                        apparitions[w].append(info)
+                    else:
+                        apparitions[w] = [info]
         apparitions = dict((w,apparitions[w]) for w in apparitions if len(apparitions[w]))
         return apparitions
 

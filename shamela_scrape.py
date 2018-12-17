@@ -3,7 +3,8 @@ from bs4 import BeautifulSoup
 import basic as bs
 import re
 
-def getPageText(html_page_link ,  last_page_read):
+
+def getPageText(html_page_link, last_page_read):
     try:
         html_page = urllib.request.urlopen(html_page_link)
     except Exception as e:
@@ -11,9 +12,9 @@ def getPageText(html_page_link ,  last_page_read):
         return ""
     soup = BeautifulSoup(html_page, "lxml")
     page = ""
-    for main_text in soup.find_all("div" , {"class" : "book-container"}):
+    for main_text in soup.find_all("div", {"class": "book-container"}):
         text = str(main_text)
-        #text = re.sub("(<br\s*/?>)" , "\n" , text)
+        # text = re.sub("(<br\s*/?>)" , "\n" , text)
         text = re.sub("(<hr class=\"footnote\".*?)|(<span.*?>)|(</span>)|(<div.*?>)|(</div>)", "", text)
         text = re.sub("(\n)|(\r)|(\t+)", " ", text)
         page += text
@@ -28,7 +29,6 @@ def getPageText(html_page_link ,  last_page_read):
     return page
 
 
-
 def readBook(book_link):
     x = 1
     book = ""
@@ -40,7 +40,7 @@ def readBook(book_link):
     soup = BeautifulSoup(rep, "lxml")
     for main_page in soup.find_all("a"):
         read_link = main_page.get("href")
-        if re.match("http://shamela.ws/browse.php/book-\d+" , read_link):
+        if re.match("http://shamela.ws/browse.php/book-\d+", read_link):
             page = ""
             while True:
                 page = getPageText(read_link + "/page-" + str(x), page)
@@ -51,6 +51,7 @@ def readBook(book_link):
                     break
             book = re.sub("(<br/>+)|(<br>)", "\n", book)
             return book
+
 
 def scrape_all():
     books = bs.loadListOfBooksByEras()
@@ -74,35 +75,37 @@ def scrape_all():
                     book_link = book.get("href")
                     if re.match("/index.php/book/\d+", book_link):
                         # try:
-                            author = book.parent.find("a", {"class": "ignore"})
-                            author = author.text
-                            era = bs.getEraFromAuthor(author)
-                            if era == 'unknown':
-                                continue
-                            # if not bs.bookExists(book.text, era):
+                        if bs.bookExists(book.text, books):
+                            print('INFO SHAMELA EXISTED', existed, book.text)
+                            existed = existed + 1
+                            continue
+                        author = book.parent.find("a", {"class": "ignore"})
+                        author = author.text
+                        era = bs.getEraFromAuthor(author)
+                        if era == 'unknown':
+                            continue
+                        # if not bs.bookExists(book.text, era):
 
-                            if bs.bookExists(book.text, books):
-                                print('INFO SHAMELA EXISTED', existed , book.text)
-                                existed = existed + 1
-                                continue
 
-                            if not bs.bookExists(book.text, books):
-                                filename = bs.getFilePath(book.text, era, category.text, author)
-                                
-                                if filename is None:
-                                    print('ERROR SHAMELA', errors, ': filename is None', 'era is:', str(era))
-                                    errors = errors + 1
-                                    continue
-                                b = readBook("http://shamela.ws" + book_link)
-                                
-                                file = open(filename, encoding="utf-8", mode="w")
-                                print('INFO SHAMELA CREATED', created, filename)
-                                created = created + 1
-                                file.write(b)
-                                file.close()
-                        # except Exception:
-                        #     print('in exception2')
-                        #     continue
+
+                        filename = bs.getFilePath(book.text, era, category.text, author)
+
+                        if filename is None:
+                            print('ERROR SHAMELA', errors, ': filename is None', 'era is:', str(era))
+                            errors = errors + 1
+                            continue
+                        b = readBook("http://shamela.ws" + book_link)
+
+                    file = open(filename, encoding="utf-8", mode="w")
+                    print('INFO SHAMELA CREATED', created, filename)
+                    created = created + 1
+                    file.write(b)
+                    file.close()
+                    # except Exception:
+                    #     print('in exception2')
+                    #     continue
     return created, existed, errors
+
+
 if __name__ == '__main__':
     scrape_all()

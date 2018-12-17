@@ -69,10 +69,7 @@ def scrapeIslamic(parent, page, type="تاريخ", limit=-1):
             if i == 3:
                 book = td.text
         if con: continue
-        era = bs.getEraFromAuthor(author)
 
-        if era == 'unknown':
-            continue
 
         if bs.bookExists(book, books):
             existed = existed + 1
@@ -80,6 +77,11 @@ def scrapeIslamic(parent, page, type="تاريخ", limit=-1):
             limit -= 1
             if not limit:
                 return
+            continue
+
+        era = bs.getEraFromAuthor(author)
+
+        if era == 'unknown':
             continue
 
         filename = bs.getFilePath(book, era, type, author)
