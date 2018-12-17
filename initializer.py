@@ -125,7 +125,7 @@ if __name__ == "__main__":
     import quran_corpus_builder
     import os
 
-    cpt = quran_corpus_builder.build(1,xmlDir)
+    # cpt = quran_corpus_builder.build(1,xmlDir)
     # cleaner.convertScrapedToXml(xmlDir,cpt)
     # exit(0)
     print ('INFO INIT: initializer started')
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     createDirectories()
     light_scrape = False
 
-    options, remainder = getopt.getopt(sys.argv[1:], 'l:x:r',[])
+    options, remainder = getopt.getopt(sys.argv[1:], 'lx:r:',[])
     for opt,arg in options:
         if opt == '-l':
             light_scrape = True
@@ -148,7 +148,8 @@ if __name__ == "__main__":
                 exit(1)
             path = arg + "/rawData"  # where to put scraped files
 
-
+    print('INFO INIT: saving raw in ', path)
+    print('INFO INIT: saving xml in ',xmlDir)
     print('INFO INIT: starting to scrape')
     if light_scrape:
         print('INFO INIT: light scraping mode selected')
