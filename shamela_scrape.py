@@ -5,7 +5,7 @@ import re
 
 def getPageText(html_page_link ,  last_page_read):
     try:
-        html_page = urllib.request.urlopen(html_page_link)
+        html_page = urllib.request.urlopen(html_page_link,timeout="1")
     except Exception:
         return ""
     soup = BeautifulSoup(html_page, "lxml")
