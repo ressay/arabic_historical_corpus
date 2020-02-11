@@ -4,7 +4,7 @@ beautifulsoup4==4.6.3
 certifi==2018.11.29
 chardet==3.0.4
 decorator==4.3.0
-Django==2.1.2
+Django==2.2.10
 django-cors-headers==2.4.0
 djangorestframework==3.9.0
 gunicorn==19.9.0
